@@ -1,0 +1,16 @@
+<UnityTUIOConfig>
+	<ConfigNodes>
+		<ConfigNode name="enabled">
+			<Value>true</Value>
+		</ConfigNode>
+		<ConfigNode name="udp-port">
+			<Value>3333</Value>
+		</ConfigNode>
+		<ConfigNode name="targetResolutionX">
+			<Value>1920</Value>
+		</ConfigNode>
+		<ConfigNode name="targetResolutionY">
+			<Value>1080</Value>
+		</ConfigNode>
+	</ConfigNodes>
+</UnityTUIOConfig>

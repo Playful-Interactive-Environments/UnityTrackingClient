@@ -1,0 +1,29 @@
+<UnityPharusConfig>
+	<ConfigNodes>
+		<ConfigNode name="enabled">
+			<Value>true</Value>
+		</ConfigNode>
+		<ConfigNode name="protocol">
+			<!--- UDP | TCP	-->
+			<Value>tcp</Value>
+		</ConfigNode>
+		<ConfigNode name="udp-multicast-ip">
+			<Value>239.1.1.1</Value>
+		</ConfigNode>
+		<ConfigNode name="udp-port">
+			<Value>44345</Value>
+		</ConfigNode>
+		<ConfigNode name="tcp-ip">
+			<Value>127.0.0.1</Value>
+		</ConfigNode>
+		<ConfigNode name="tcp-port">
+			<Value>44345</Value>
+		</ConfigNode>
+		<ConfigNode name="targetResolutionX">
+			<Value>1920</Value>
+		</ConfigNode>
+		<ConfigNode name="targetResolutionY">
+			<Value>1080</Value>
+		</ConfigNode>
+	</ConfigNodes>
+</UnityPharusConfig>
