@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace PharusTransmission
 {
 	/// <summary>
@@ -33,6 +35,10 @@ namespace PharusTransmission
 		/// Yields in what state the track currently is
 		/// </summary>
 		public ETrackState state;
+		/// <summary>
+		/// List of CONFIRMED echoes that 'belong' to this track in relative coordinates (TUIO style)
+		/// </summary>
+		public List<Vector2f> echoes;
 	}
 
 	public struct Vector2f

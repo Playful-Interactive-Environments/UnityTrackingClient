@@ -8,9 +8,9 @@ abstract public class ATuioPlayerManager : MonoBehaviour
 	protected List<ATrackingEntity> _playerList;
 	[SerializeField] private GameObject _playerPrefab;
 	[SerializeField] private bool _addUnknownPlayerOnUpdate = true;
-	[SerializeField] private bool _trackTuioCursors = true;
-	[SerializeField] private bool _trackTuioObjects = false;
-	[SerializeField] private bool _trackTuioBlobs = false;
+	[SerializeField] private bool _subscribeTuioCursors = true;
+	[SerializeField] private bool _subscribeTuioObjects = false;
+	[SerializeField] private bool _subscribeTuioBlobs = false;
 
 	public List<ATrackingEntity> PlayerList
 	{
@@ -41,19 +41,19 @@ abstract public class ATuioPlayerManager : MonoBehaviour
 	{
 		if(UnityTuioManager.Instance != null)
 		{
-			if(_trackTuioCursors)
+			if(_subscribeTuioCursors)
 			{
 				UnityTuioManager.Instance.EventProcessor.CursorAdded -= OnCursorAdded;
 				UnityTuioManager.Instance.EventProcessor.CursorUpdated -= OnCursorUpdated;
 				UnityTuioManager.Instance.EventProcessor.CursorRemoved -= OnCursorRemoved;
 			}
-			if(_trackTuioObjects)
+			if(_subscribeTuioObjects)
 			{
 				UnityTuioManager.Instance.EventProcessor.ObjectAdded -= OnObjectAdded;
 				UnityTuioManager.Instance.EventProcessor.ObjectUpdated -= OnObjectUpdated;
 				UnityTuioManager.Instance.EventProcessor.ObjectRemoved -= OnObjectRemoved;
 			}
-			if(_trackTuioBlobs)
+			if(_subscribeTuioBlobs)
 			{
 				UnityTuioManager.Instance.EventProcessor.BlobAdded -= OnBlobAdded;
 				UnityTuioManager.Instance.EventProcessor.BlobUpdated -= OnBlobUpdated;
@@ -65,19 +65,19 @@ abstract public class ATuioPlayerManager : MonoBehaviour
 	#region private methods
 	private void SubscribeTrackingEvents(object theSender, System.EventArgs e)
 	{
-		if(_trackTuioCursors)
+		if(_subscribeTuioCursors)
 		{
 			UnityTuioManager.Instance.EventProcessor.CursorAdded += OnCursorAdded;
 			UnityTuioManager.Instance.EventProcessor.CursorUpdated += OnCursorUpdated;
 			UnityTuioManager.Instance.EventProcessor.CursorRemoved += OnCursorRemoved;
 		}
-		if(_trackTuioObjects)
+		if(_subscribeTuioObjects)
 		{
 			UnityTuioManager.Instance.EventProcessor.ObjectAdded += OnObjectAdded;
 			UnityTuioManager.Instance.EventProcessor.ObjectUpdated += OnObjectUpdated;
 			UnityTuioManager.Instance.EventProcessor.ObjectRemoved += OnObjectRemoved;
 		}
-		if(_trackTuioBlobs)
+		if(_subscribeTuioBlobs)
 		{
 			UnityTuioManager.Instance.EventProcessor.BlobAdded += OnBlobAdded;
 			UnityTuioManager.Instance.EventProcessor.BlobUpdated += OnBlobUpdated;

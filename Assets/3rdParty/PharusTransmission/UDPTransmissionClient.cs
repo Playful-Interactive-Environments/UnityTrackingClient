@@ -205,6 +205,7 @@ namespace PharusTransmission
 						if (unknownTrack)
 						{
 							track = new TrackRecord();
+							track.echoes = new List<Vector2f>();
 							track.trackID = tid;
 							trackDict.Add(tid, track);
 						}
@@ -223,6 +224,16 @@ namespace PharusTransmission
 						track.speed = UnpackFloat(recvData, ref i); 
 						track.relPos.x = UnpackFloat(recvData, ref i); 
 						track.relPos.y = UnpackFloat(recvData, ref i);
+						track.echoes.Clear();
+						while (Convert.ToChar(recvData[i]) == 'E') // peek if echo(es) available
+						{
+							++i; // yep, then skip 'E'
+							Vector2f echo;
+							echo.x = UnpackFloat(recvData, ref i);
+							echo.y = UnpackFloat(recvData, ref i);
+							track.echoes.Add(echo);
+							++i; // 'e'
+						}
 						
 						if (Convert.ToChar(recvData[i++]) != 't')
 						{
