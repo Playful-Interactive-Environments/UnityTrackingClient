@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Derive your tracking driven entities from this.
@@ -12,6 +13,7 @@ public abstract class ATrackingEntity : MonoBehaviour
 	private Vector2 _relativePosition;
 	private Vector2 _orientation;
 	private float _speed;
+	private List<Vector2> _echoes = new List<Vector2>();
 
 	#region properties
 	/// <summary>
@@ -67,6 +69,15 @@ public abstract class ATrackingEntity : MonoBehaviour
 		get { return _speed; }
 		set { _speed = value; }
 	}
+
+	/// <summary>
+	/// A list of the track's echoes (feet) as Vector2
+	/// </summary>
+	public List<Vector2> Echoes
+	{
+		get { return _echoes; }
+		set { _echoes = value; }
+	}
 	#endregion
 
 	#region public methods
@@ -75,4 +86,15 @@ public abstract class ATrackingEntity : MonoBehaviour
 		this.transform.position = theNewPosition;
 	}
 	#endregion
+
+	private void OnDrawGizmos()
+	{
+		Gizmos.color = Color.red;
+
+		// DEBUG DRAW ECHOES
+		foreach (Vector2 echo in Echoes) 
+		{
+			Gizmos.DrawWireSphere (UnityTracking.TrackingAdapter.GetScreenPositionFromRelativePosition(echo.x, echo.y), 12f);
+		}
+	}
 }

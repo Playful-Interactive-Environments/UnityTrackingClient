@@ -4,6 +4,7 @@ using TUIO;
 using System.IO;
 using System;
 using UnityEngine.UI;
+using UnityTracking;
 
 namespace UnityTuio
 {
@@ -11,7 +12,7 @@ namespace UnityTuio
 	/// The UnityTuioManager keeps control over the UnityTuioListener and the UnityTuioEventProcessor.
 	/// </summary>
 	[AddComponentMenu("UnityTuio/UnityTuioManager")]
-	public class UnityTuioManager : MonoBehaviour
+	public class UnityTuioManager : MonoBehaviour, ITrackingManager
 	{
 		/// <summary>
 		/// Overall TUIO Settings
@@ -21,8 +22,14 @@ namespace UnityTuio
 		{
 			[SerializeField] private bool _trackingEnabled = true;
 			[SerializeField] private int _udpPort = 3333;
+			[Tooltip("in pixel")]
 			[SerializeField] private int _targetScreenWidth = 1920;
+			[Tooltip("in pixel")]
 			[SerializeField] private int _targetScreenHeight = 1080;
+			[Tooltip("in centimeter")]
+			[SerializeField] private float _stageX = 1600f;
+			[Tooltip("in centimeter")]
+			[SerializeField] private float _stageY = 900f;
 			
 			public bool TrackingEnabled
 			{
@@ -44,6 +51,16 @@ namespace UnityTuio
 				get { return _targetScreenWidth; }
 				set { this._targetScreenWidth = value; }
 			}
+			public float StageX
+			{
+				get { return this._stageX; }
+				set { this._stageX = value; }
+			}
+			public float StageY
+			{
+				get { return this._stageY; }
+				set { this._stageY = value; }
+			}
 		}
 		
 		#region event handlers
@@ -64,7 +81,6 @@ namespace UnityTuio
 		private bool m_initialized = false;
 		private UnityTuioListener m_listener;
 		private UnityTuioEventProcessor m_eventProcessor;
-		private IScreenManager m_screenManager;
 
 		public UnityTuioEventProcessor EventProcessor
 		{
@@ -151,11 +167,6 @@ namespace UnityTuio
 				StartCoroutine(ReconnectTuioListenerDelayed(theDelay));
 			}
 		}
-
-		public void SetScreenManager(IScreenManager theScreenManager)
-		{
-			m_screenManager = theScreenManager;
-		}
 		#endregion
 
 		#region private methods
@@ -179,24 +190,32 @@ namespace UnityTuio
 				string configUDPPort = null;
 				string targetResolutionX = null;
 				string targetResolutionY = null;
+				string stageX = null;
+				string stageY = null;
 				for (int i = 0; i < m_unityTuioXMLConfig.ConfigNodes.Length; i++)
 				{
 					switch(m_unityTuioXMLConfig.ConfigNodes[i].Name)
 					{
-					case "enabled":
-						configTrackingEnabled = m_unityTuioXMLConfig.ConfigNodes[i].Value;
-						break;
-					case "udp-port":
-						configUDPPort = m_unityTuioXMLConfig.ConfigNodes[i].Value;
-						break;
-					case "targetResolutionX":
-						targetResolutionX = m_unityTuioXMLConfig.ConfigNodes[i].Value;
-						break;
-					case "targetResolutionY":
-						targetResolutionY = m_unityTuioXMLConfig.ConfigNodes[i].Value;
-						break;
-					default:
-						break;
+						case "enabled":
+							configTrackingEnabled = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "udp-port":
+							configUDPPort = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "targetResolutionX":
+							targetResolutionX = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "targetResolutionY":
+							targetResolutionY = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "stageX":
+							stageX = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "stageY":
+							stageY = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+							break;
+						default:
+							break;
 					}
 					
 				}
@@ -232,6 +251,20 @@ namespace UnityTuio
 				{
 					Debug.LogWarning(string.Format("XML config: invalid resolution config, using resolution specified in TuioManager prefab instead: {0}x{1}", m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight));
 				}
+
+				float configStageFloatX;
+				float configStageFloatY;
+				if (stageX != null && float.TryParse(stageX, out configStageFloatX) &&
+					stageY != null && float.TryParse(stageY, out configStageFloatY))
+				{
+					m_tuioSettings.StageX = configStageFloatX;
+					m_tuioSettings.StageY = configStageFloatY;
+					Debug.Log(string.Format("XML config: new stage size: {0}x{1}", m_tuioSettings.StageX, m_tuioSettings.StageY));
+				}
+				else
+				{
+					Debug.LogWarning(string.Format("XML config: invalid stage size config, using stage size specified in TuioManager prefab instead: {0}x{1}", m_tuioSettings.StageX, m_tuioSettings.StageY));
+				}
 			}
 			else
 			{
@@ -247,10 +280,6 @@ namespace UnityTuio
 				yield break;
 			}
 
-			if (m_screenManager != null) 
-			{
-				m_screenManager.SetScreenResolution (m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight);
-			}
 			Screen.SetResolution(m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight, true);
 
 			m_listener = new UnityTuioListener(m_tuioSettings.UDP_Port);
@@ -261,6 +290,8 @@ namespace UnityTuio
 			{
 				OnTrackingInitialized(this, new EventArgs());
 			}
+
+			TrackingAdapter.InjectTrackingManager (m_instance);
 			
 			UpdateDebugGUI();
 		}
@@ -328,18 +359,7 @@ namespace UnityTuio
 		}
 		#endregion
 
-		#region static methods
-		public static Vector2 TuioPointToScreenCoord (TuioPoint tuioPoint)
-		{
-			return new Vector2(tuioPoint.getScreenX(Instance.m_tuioSettings.TargetScreenWidth), Instance.m_tuioSettings.TargetScreenHeight - tuioPoint.getScreenY(Instance.m_tuioSettings.TargetScreenHeight));
-		}
-		public static Vector2 TuioPointToScreenCoord (float tuioPointX, float tuioPointY)
-		{
-			return new Vector2((int)Mathf.Round(tuioPointX * Instance.m_tuioSettings.TargetScreenWidth), Instance.m_tuioSettings.TargetScreenHeight - (int)Mathf.Round(tuioPointY * Instance.m_tuioSettings.TargetScreenHeight));
-		}
-		#endregion
-
-		#region static properties
+		#region Interface properties
 		public int TargetScreenWidth
 		{
 			get{ return Instance.m_tuioSettings.TargetScreenWidth; }
@@ -347,6 +367,29 @@ namespace UnityTuio
 		public int TargetScreenHeight
 		{
 			get{ return Instance.m_tuioSettings.TargetScreenHeight; }
+		}
+
+		public float TrackingStageX
+		{
+			get { return Instance.m_tuioSettings.StageX; }
+		}
+		public float TrackingStageY
+		{
+			get { return Instance.m_tuioSettings.StageY; }
+		}
+		#endregion
+
+		#region Interface methods
+		public Vector2 GetScreenPositionFromRelativePosition(float x, float y)
+		{
+			return new Vector2((int)Mathf.Round(x * m_tuioSettings.TargetScreenWidth), m_tuioSettings.TargetScreenHeight - (int)Mathf.Round(y * m_tuioSettings.TargetScreenHeight));
+		}
+		#endregion
+
+		#region static methods
+		public static Vector2 GetScreenPositionFromRelativePosition (TuioPoint tuioPoint)
+		{
+			return new Vector2(tuioPoint.getScreenX(Instance.m_tuioSettings.TargetScreenWidth), Instance.m_tuioSettings.TargetScreenHeight - tuioPoint.getScreenY(Instance.m_tuioSettings.TargetScreenHeight));
 		}
 		#endregion
 	}

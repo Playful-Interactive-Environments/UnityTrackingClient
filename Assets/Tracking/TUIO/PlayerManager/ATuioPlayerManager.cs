@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityTuio;
+using UnityTracking;
 
 abstract public class ATuioPlayerManager : MonoBehaviour
 {
@@ -130,7 +131,8 @@ abstract public class ATuioPlayerManager : MonoBehaviour
 	#region player management
 	public virtual void AddPlayer (TUIO.TuioContainer theTuioContainer)
 	{
-		Vector2 position = UnityTuioManager.TuioPointToScreenCoord(theTuioContainer.Position);
+//		Vector2 position = UnityTuioManager.GetScreenPositionFromRelativePosition (theTuioContainer.Position);
+		Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(theTuioContainer.Position.X, theTuioContainer.Position.Y);
 
 		ATrackingEntity aPlayer = (GameObject.Instantiate(_playerPrefab, new Vector3(position.x,position.y,0), Quaternion.identity) as GameObject).GetComponent<ATrackingEntity>();
 		aPlayer.TrackID = theTuioContainer.SessionID;
@@ -147,7 +149,8 @@ abstract public class ATuioPlayerManager : MonoBehaviour
 		{
 			if(player.TrackID.Equals(theTuioContainer.SessionID))
 			{
-				Vector2 position = UnityTuioManager.TuioPointToScreenCoord(theTuioContainer.Position);
+//				Vector2 position = UnityTuioManager.GetScreenPositionFromRelativePosition (theTuioContainer.Position);
+				Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(theTuioContainer.Position.X, theTuioContainer.Position.Y);
 				player.SetPosition(position);
 				player.RelativePosition = new Vector2(theTuioContainer.Position.X, theTuioContainer.Position.Y);
 				return;

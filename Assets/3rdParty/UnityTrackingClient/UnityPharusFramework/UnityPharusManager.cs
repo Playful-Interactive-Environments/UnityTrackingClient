@@ -4,6 +4,7 @@ using PharusTransmission;
 using System.IO;
 using System;
 using UnityEngine.UI;
+using UnityTracking;
 
 namespace UnityPharus
 {
@@ -11,7 +12,7 @@ namespace UnityPharus
     /// The UnityPharusManager keeps control over the UnityPharusListener and the UnityPharusEventProcessor.
     /// </summary>
     [AddComponentMenu("UnityPharus/UnityPharusManager")]
-    public class UnityPharusManager : MonoBehaviour
+	public class UnityPharusManager : MonoBehaviour, ITrackingManager
     {
         /// <summary>
         /// Overall PharusTransmission Settings
@@ -30,12 +31,17 @@ namespace UnityPharus
             [SerializeField] private string _tcpRemoteIpAddress = "127.0.0.1";
             [SerializeField] private int _tcpLocalPort = 44345;
             [SerializeField] private string _udpMulticastIpAddress = "239.1.1.1";
-            [SerializeField] private int _udpLocalPort = 44345;
-            [SerializeField] private int _targetScreenWidth = 1920;
-            [SerializeField] private int _targetScreenHeight = 1080;
-            [SerializeField]
+			[SerializeField] private int _udpLocalPort = 44345;
+			[Tooltip("in pixel")]
+			[SerializeField] private int _targetScreenWidth = 1920;
+			[Tooltip("in pixel")]
+			[SerializeField] private int _targetScreenHeight = 1080;
+			[Tooltip("in centimeter")]
+			[SerializeField] private float _stageX = 1600f;
+			[Tooltip("in centimeter")]
+			[SerializeField] private float _stageY = 900f;
             [Tooltip("Use a negative value to prevent automatically server reconnecting")]
-            private float checkServerReconnectIntervall = 5;
+			[SerializeField] private float _checkServerReconnectIntervall = 5;
 
 			
 			public bool TracklinkEnabled
@@ -77,10 +83,20 @@ namespace UnityPharus
             {
                 get { return this._targetScreenHeight; }
                 set { this._targetScreenHeight = value; }
-            }
+			}
+			public float StageX
+			{
+				get { return this._stageX; }
+				set { this._stageX = value; }
+			}
+			public float StageY
+			{
+				get { return this._stageY; }
+				set { this._stageY = value; }
+			}
             public float CheckServerReconnectIntervall
             {
-                get { return this.checkServerReconnectIntervall; }
+                get { return this._checkServerReconnectIntervall; }
             }
 		}
 		
@@ -103,7 +119,6 @@ namespace UnityPharus
 		private bool m_initialized = false;
 		private UnityPharusListener m_listener;
 		private UnityPharusEventProcessor m_eventProcessor;
-		private IScreenManager m_screenManager;
 
 		public UnityPharusEventProcessor EventProcessor
 		{
@@ -190,11 +205,6 @@ namespace UnityPharus
                 StartCoroutine(ReconnectListenerDelayed(theDelay));
             }
         }
-
-		public void SetScreenManager(IScreenManager theScreenManager)
-		{
-			m_screenManager = theScreenManager;
-		}
         #endregion
 
         #region private methods
@@ -227,6 +237,8 @@ namespace UnityPharus
                 string configUDPPort = null;
 				string targetResolutionX = null;
 				string targetResolutionY = null;
+				string stageX = null;
+				string stageY = null;
                 for (int i = 0; i < m_unityPharusXMLConfig.ConfigNodes.Length; i++)
                 {
 					switch(m_unityPharusXMLConfig.ConfigNodes[i].Name)
@@ -254,6 +266,12 @@ namespace UnityPharus
 							break;
 						case "targetResolutionY":
 							targetResolutionY = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "stageX":
+							stageX = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+							break;
+						case "stageY":
+							stageY = m_unityPharusXMLConfig.ConfigNodes[i].Value;
 							break;
 						default:
 							break;
@@ -322,6 +340,20 @@ namespace UnityPharus
 				{
 					Debug.LogWarning(string.Format("XML config: invalid resolution config, using resolution specified in PharusManager prefab instead: {0}x{1}", m_pharusSettings.TargetScreenWidth, m_pharusSettings.TargetScreenHeight));
 				}
+
+				float configStageFloatX;
+				float configStageFloatY;
+				if (stageX != null && float.TryParse(stageX, out configStageFloatX) &&
+					stageY != null && float.TryParse(stageY, out configStageFloatY))
+				{
+					m_pharusSettings.StageX = configStageFloatX;
+					m_pharusSettings.StageY = configStageFloatY;
+					Debug.Log(string.Format("XML config: new stage size: {0}x{1}", m_pharusSettings.StageX, m_pharusSettings.StageY));
+				}
+				else
+				{
+					Debug.LogWarning(string.Format("XML config: invalid stage size config, using stage size specified in PharusManager prefab instead: {0}x{1}", m_pharusSettings.StageX, m_pharusSettings.StageY));
+				}
             }
             else
             {
@@ -360,11 +392,9 @@ namespace UnityPharus
                 OnTrackingInitialized(this, new EventArgs());
             }
 
-			if (m_screenManager != null) 
-			{
-				m_screenManager.SetScreenResolution (m_pharusSettings.TargetScreenWidth, m_pharusSettings.TargetScreenHeight);
-			}
             Screen.SetResolution(m_pharusSettings.TargetScreenWidth, m_pharusSettings.TargetScreenHeight, true);
+
+			TrackingAdapter.InjectTrackingManager (m_instance);
 
             UpdateDebugGUI();
         }
@@ -440,28 +470,40 @@ namespace UnityPharus
                 m_unityPharusXMLConfig = UnityPharusXMLConfig.LoadFromText(aWww.text);
             }
         }
-        #endregion
+		#endregion
 
-        #region static methods
-		public static Vector2 PharusRelPosToScreenCoord(Vector2f pharusTrackPosition)
-        {
-			return PharusRelPosToScreenCoord(pharusTrackPosition.x, pharusTrackPosition.y);
-        }
-		public static Vector2 PharusRelPosToScreenCoord(float x, float y)
-        {
-            return new Vector2((int)Mathf.Round(x * Instance.m_pharusSettings.TargetScreenWidth), Instance.m_pharusSettings.TargetScreenHeight - (int)Mathf.Round(y * Instance.m_pharusSettings.TargetScreenHeight));
-        }
-        #endregion
+		#region interface properties
+		public int TargetScreenWidth
+		{
+			get { return Instance.m_pharusSettings.TargetScreenWidth; }
+		}
+		public int TargetScreenHeight
+		{
+			get { return Instance.m_pharusSettings.TargetScreenHeight; }
+		}
 
-        #region static properties
-        public int TargetScreenWidth
+		public float TrackingStageX
+		{
+			get { return Instance.m_pharusSettings.StageX; }
+		}
+		public float TrackingStageY
+		{
+			get { return Instance.m_pharusSettings.StageY; }
+		}
+		#endregion
+
+        #region interface methods
+		public Vector2 GetScreenPositionFromRelativePosition(float x, float y)
         {
-            get { return Instance.m_pharusSettings.TargetScreenWidth; }
+            return new Vector2((int)Mathf.Round(x * m_pharusSettings.TargetScreenWidth), m_pharusSettings.TargetScreenHeight - (int)Mathf.Round(y * m_pharusSettings.TargetScreenHeight));
         }
-        public int TargetScreenHeight
-        {
-            get { return Instance.m_pharusSettings.TargetScreenHeight; }
-        }
-        #endregion
+		#endregion
+
+		#region static methods
+		public static Vector2 GetScreenPositionFromRelativePosition(Vector2f pharusTrackPosition)
+		{
+			return Instance.GetScreenPositionFromRelativePosition(pharusTrackPosition.x, pharusTrackPosition.y);
+		}
+		#endregion
     }
 }
