@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityPharus;
+using UnityTracking;
 
 abstract public class APharusPlayerManager : MonoBehaviour
 {
@@ -70,42 +71,48 @@ abstract public class APharusPlayerManager : MonoBehaviour
 	#endregion
 	
 	#region player management
-	public virtual void AddPlayer (PharusTransmission.TrackRecord theTrackRecord)
+	public virtual void AddPlayer (PharusTransmission.TrackRecord trackRecord)
 	{
-		Vector2 position = UnityPharusManager.PharusRelPosToScreenCoord(theTrackRecord.relPos);
+//		Vector2 position = UnityPharusManager.GetScreenPositionFromRelativePosition(trackRecord.relPos);
+		Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y);
 		ATrackingEntity aPlayer = (GameObject.Instantiate(_playerPrefab, new Vector3(position.x,position.y,0), Quaternion.identity) as GameObject).GetComponent<ATrackingEntity>();
-		aPlayer.TrackID = theTrackRecord.trackID;
-		aPlayer.AbsolutePosition = new Vector2(theTrackRecord.currentPos.x,theTrackRecord.currentPos.y);
-		aPlayer.NextExpectedAbsolutePosition = new Vector2(theTrackRecord.expectPos.x,theTrackRecord.expectPos.y);
-		aPlayer.RelativePosition = new Vector2(theTrackRecord.relPos.x,theTrackRecord.relPos.y);
-		aPlayer.Orientation = new Vector2(theTrackRecord.orientation.x,theTrackRecord.orientation.y);
-		aPlayer.Speed = theTrackRecord.speed;
+		aPlayer.TrackID = trackRecord.trackID;
+		aPlayer.AbsolutePosition = new Vector2(trackRecord.currentPos.x,trackRecord.currentPos.y);
+		aPlayer.NextExpectedAbsolutePosition = new Vector2(trackRecord.expectPos.x,trackRecord.expectPos.y);
+		aPlayer.RelativePosition = new Vector2(trackRecord.relPos.x,trackRecord.relPos.y);
+		aPlayer.Orientation = new Vector2(trackRecord.orientation.x,trackRecord.orientation.y);
+		aPlayer.Speed = trackRecord.speed;
+		aPlayer.Echoes.Clear ();
+		trackRecord.echoes.AddToVector2List (aPlayer.Echoes);
 
 		aPlayer.gameObject.name = string.Format("PharusPlayer_{0}", aPlayer.TrackID);
 
 		_playerList.Add(aPlayer);
 	}
 	
-	public virtual void UpdatePlayerPosition (PharusTransmission.TrackRecord theTrackRecord)
+	public virtual void UpdatePlayerPosition (PharusTransmission.TrackRecord trackRecord)
 	{
-		foreach (ATrackingEntity player in _playerList) 
+		foreach (ATrackingEntity aPlayer in _playerList) 
 		{
-			if(player.TrackID == theTrackRecord.trackID)
+			if(aPlayer.TrackID == trackRecord.trackID)
 			{
-				Vector2 position = UnityPharusManager.PharusRelPosToScreenCoord(theTrackRecord.relPos);
-				player.AbsolutePosition = new Vector2(theTrackRecord.currentPos.x,theTrackRecord.currentPos.y);
-				player.NextExpectedAbsolutePosition = new Vector2(theTrackRecord.expectPos.x,theTrackRecord.expectPos.y);
-				player.RelativePosition = new Vector2(theTrackRecord.relPos.x,theTrackRecord.relPos.y);
-				player.Orientation = new Vector2(theTrackRecord.orientation.x,theTrackRecord.orientation.y);
-				player.Speed = theTrackRecord.speed;
-				player.SetPosition(position);
+				aPlayer.AbsolutePosition = new Vector2(trackRecord.currentPos.x,trackRecord.currentPos.y);
+				aPlayer.NextExpectedAbsolutePosition = new Vector2(trackRecord.expectPos.x,trackRecord.expectPos.y);
+				aPlayer.RelativePosition = new Vector2(trackRecord.relPos.x,trackRecord.relPos.y);
+				aPlayer.Orientation = new Vector2(trackRecord.orientation.x,trackRecord.orientation.y);
+				aPlayer.Speed = trackRecord.speed;
+				// use AddToVector2List() instead of ToVector2List() as it is more performant
+				aPlayer.Echoes.Clear ();
+				trackRecord.echoes.AddToVector2List (aPlayer.Echoes);
+				aPlayer.SetPosition(UnityPharusManager.GetScreenPositionFromRelativePosition(trackRecord.relPos));
+				aPlayer.SetPosition(TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y));
 				return;
 			}
 		}
 
 		if(_addUnknownPlayerOnUpdate)
 		{
-			AddPlayer(theTrackRecord);
+			AddPlayer(trackRecord);
 		}
 	}
 	

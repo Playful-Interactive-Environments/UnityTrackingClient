@@ -5,7 +5,7 @@
 		</ConfigNode>
 		<ConfigNode name="protocol">
 			<!--- UDP | TCP	-->
-			<Value>tcp</Value>
+			<Value>udp</Value>
 		</ConfigNode>
 		<ConfigNode name="udp-multicast-ip">
 			<Value>239.1.1.1</Value>
@@ -20,10 +20,20 @@
 			<Value>44345</Value>
 		</ConfigNode>
 		<ConfigNode name="targetResolutionX">
+			<!-- in pixel -->
 			<Value>1920</Value>
 		</ConfigNode>
 		<ConfigNode name="targetResolutionY">
+			<!-- in pixel -->
 			<Value>1080</Value>
+		</ConfigNode>
+		<ConfigNode name="stageX">
+			<!-- horizontal in centimeter -->
+			<Value>1600</Value>
+		</ConfigNode>
+		<ConfigNode name="stageY">
+			<!-- vertical in centimeter -->
+			<Value>900</Value>
 		</ConfigNode>
 	</ConfigNodes>
 </UnityPharusConfig>
