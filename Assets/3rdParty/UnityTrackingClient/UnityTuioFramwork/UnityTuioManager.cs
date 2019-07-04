@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using UnityEngine.UI;
 using UnityTracking;
+using UnityEngine.Networking;
 
 namespace UnityTuio
 {
@@ -321,15 +322,15 @@ namespace UnityTuio
 //			Debug.Log ("Trying to load config file");
 			string aPathToConfigXML = Path.Combine(Application.dataPath, "tuioConfig.xml");
 			aPathToConfigXML = "file:///" + aPathToConfigXML;
-			WWW aWww = new WWW(aPathToConfigXML);
-//			Debug.Log ("start loading file...");
-			yield return aWww;
-//			Debug.Log ("file loading complete");
-			
-			if (aWww.isDone && string.IsNullOrEmpty(aWww.error))
-			{
+            UnityWebRequest request = UnityWebRequest.Get(aPathToConfigXML);
+            // Debug.Log ("start loading file...");
+            yield return request.SendWebRequest();
+            // Debug.Log ("file loading complete");
+
+            if (!request.isNetworkError && !request.isHttpError)
+            {
 //				Debug.Log ("no errors occured during config file load");
-				m_unityTuioXMLConfig = UnityTuioXMLConfig.LoadFromText(aWww.text);
+				m_unityTuioXMLConfig = UnityTuioXMLConfig.LoadFromText(request.downloadHandler.text);
 			}
 		}
 
