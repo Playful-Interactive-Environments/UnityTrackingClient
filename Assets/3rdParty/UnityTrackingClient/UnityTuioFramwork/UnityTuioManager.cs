@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
-using TUIO;
 using System.IO;
-using System;
+using TUIO;
+using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityTracking;
-using UnityEngine.Networking;
 
 namespace UnityTuio
 {
@@ -16,22 +16,30 @@ namespace UnityTuio
 	public class UnityTuioManager : MonoBehaviour, ITrackingManager
 	{
 		/// <summary>
-		/// Overall TUIO Settings
+		/// General TUIO Settings
 		/// </summary>
 		[System.Serializable]
 		public class TuioSettings
 		{
 			[SerializeField] private bool _trackingEnabled = true;
 			[SerializeField] private int _udpPort = 3333;
+
 			[Tooltip("in pixel")]
-			[SerializeField] private int _targetScreenWidth = 1920;
+			[SerializeField]
+			private int _trackingInterpolationX = 1920;
+
 			[Tooltip("in pixel")]
-			[SerializeField] private int _targetScreenHeight = 1080;
+			[SerializeField]
+			private int _trackingInterpolationY = 1080;
+
 			[Tooltip("in centimeter")]
-			[SerializeField] private float _stageX = 1600f;
+			[SerializeField]
+			private float _trackingStageX = 1600f;
+
 			[Tooltip("in centimeter")]
-			[SerializeField] private float _stageY = 900f;
-			
+			[SerializeField]
+			private float _trackingStageY = 900f;
+
 			public bool TrackingEnabled
 			{
 				get { return _trackingEnabled; }
@@ -42,42 +50,45 @@ namespace UnityTuio
 				get { return _udpPort; }
 				set { this._udpPort = value; }
 			}
-			public int TargetScreenHeight 
+			public int TrackingInterpolationX
 			{
-				get { return _targetScreenHeight; }
-				set { this._targetScreenHeight = value; }
+				get { return _trackingInterpolationX; }
+				set { this._trackingInterpolationX = value; }
 			}
-			public int TargetScreenWidth 
+			public int TrackingInterpolationY
 			{
-				get { return _targetScreenWidth; }
-				set { this._targetScreenWidth = value; }
+				get { return _trackingInterpolationY; }
+				set { this._trackingInterpolationY = value; }
 			}
-			public float StageX
+			public float TrackingStageX
 			{
-				get { return this._stageX; }
-				set { this._stageX = value; }
+				get { return this._trackingStageX; }
+				set { this._trackingStageX = value; }
 			}
-			public float StageY
+			public float TrackingStageY
 			{
-				get { return this._stageY; }
-				set { this._stageY = value; }
+				get { return this._trackingStageY; }
+				set { this._trackingStageY = value; }
 			}
 		}
-		
+
 		#region event handlers
+
 		public event EventHandler<EventArgs> OnTrackingInitialized;
-		#endregion
-		
+
+		#endregion event handlers
+
 		#region exposed inspector fields
 		[SerializeField] private bool m_persistent = true;
 		[SerializeField] private TuioSettings m_tuioSettings = new TuioSettings();
-		
+
 		public GameObject canvasControl;
 		public Text trackingType;
 		public Text protocolStatus;
-		public Text resolutionStatus;
-		#endregion
-		
+		public Text interpolationStatus;
+		public Text stageStatus;
+		#endregion exposed inspector fields
+
 		private UnityTuioXMLConfig m_unityTuioXMLConfig;
 		private bool m_initialized = false;
 		private UnityTuioListener m_listener;
@@ -90,16 +101,16 @@ namespace UnityTuio
 
 		#region Singleton pattern
 		private static UnityTuioManager m_instance;
-		public static UnityTuioManager Instance 
+		public static UnityTuioManager Instance
 		{
-			get 
+			get
 			{
-				if (m_instance == null) 
+				if (m_instance == null)
 				{
 					m_instance = (UnityTuioManager) FindObjectOfType(typeof(UnityTuioManager));
-					if (m_instance == null) 
+					if (m_instance == null)
 					{
-//						Debug.LogWarning (string.Format ("No instance of {0} available.", typeof(UnityTuioManager)));
+						// Debug.Log (string.Format ("No instance of {0} available.", typeof(UnityTuioManager)));
 					}
 					else
 					{
@@ -109,35 +120,43 @@ namespace UnityTuio
 				return m_instance;
 			}
 		}
-		#endregion
+		#endregion Singleton pattern
 
 		#region unity messages
-		void Awake ()
+		private void Awake ()
 		{
-			if (m_instance == null) 
+			if (m_instance == null)
 			{
 				m_instance = this;
 			}
 			else
 			{
-				if(m_instance != this)
+				if (m_instance != this)
 				{
-					Debug.LogWarning (string.Format ("Other instance of {0} detected (will be destroyed)", typeof(UnityTuioManager)));
+					Debug.Log(string.Format("Other instance of {0} detected (will be destroyed)", typeof(UnityTuioManager)));
 					GameObject.Destroy(this.gameObject);
 					return;
 				}
 			}
+		}
 
+		private void OnEnable ()
+		{
 			if (!m_initialized)
 			{
 				StartCoroutine(InitInstance());
 			}
 		}
 
-		void Update()
+		private void OnDisable ()
+		{
+			Component.Destroy(this);
+		}
+
+		private void Update ()
 		{
 			HandleKeyboardInputs();
-			
+
 			//Lister for Tuio Data if enabled
 			if (m_eventProcessor != null)
 			{
@@ -145,21 +164,22 @@ namespace UnityTuio
 			}
 		}
 
-		void OnDestroy()
+		private void OnDestroy ()
 		{
-			if(m_listener != null)
+			if (m_listener != null)
 			{
 				m_listener.Shutdown();
 			}
 		}
-		#endregion
+		#endregion unity messages
 
 		#region public methods
-		public void ReconnectTuioListener(float theDelay = -1f)
+		public void ReconnectListener (float theDelay = -1f)
 		{
-			if(m_listener == null || m_listener.HasTuioContainers()) return;
+			if (m_listener == null || m_listener.HasTuioContainers())
+				return;
 
-			if(theDelay <= 0)
+			if (theDelay <= 0)
 			{
 				m_listener.Reconnect();
 			}
@@ -168,158 +188,183 @@ namespace UnityTuio
 				StartCoroutine(ReconnectTuioListenerDelayed(theDelay));
 			}
 		}
-		#endregion
+
+		public void SetTrackingInterpolation (int width, int height)
+		{
+			this.m_tuioSettings.TrackingInterpolationX = width;
+			this.m_tuioSettings.TrackingInterpolationY = height;
+		}
+
+		public void SetTrackingStage (float x, float y)
+		{
+			this.m_tuioSettings.TrackingStageX = x;
+			this.m_tuioSettings.TrackingStageY = y;
+		}
+		#endregion public methods
 
 		#region private methods
-		private IEnumerator InitInstance()
+		private IEnumerator InitInstance ()
 		{
 			m_initialized = true;
 
-			Application.runInBackground = true;
-			
-			if(m_persistent)
+			if (m_persistent)
 			{
 				GameObject.DontDestroyOnLoad(this.gameObject);
 			}
 
 			// start: load config file
 			yield return StartCoroutine(LoadConfigXML());
-//			Debug.Log ("UnityTuioManager config loaded, continue InitInstance");
 			if (m_unityTuioXMLConfig != null)
 			{
 				string configTrackingEnabled = null;
 				string configUDPPort = null;
-				string targetResolutionX = null;
-				string targetResolutionY = null;
+				string interpolationX = null;
+				string interpolationY = null;
 				string stageX = null;
 				string stageY = null;
 				for (int i = 0; i < m_unityTuioXMLConfig.ConfigNodes.Length; i++)
 				{
-					switch(m_unityTuioXMLConfig.ConfigNodes[i].Name)
+					switch (m_unityTuioXMLConfig.ConfigNodes[i].Name)
 					{
 						case "enabled":
 							configTrackingEnabled = m_unityTuioXMLConfig.ConfigNodes[i].Value;
 							break;
+
 						case "udp-port":
 							configUDPPort = m_unityTuioXMLConfig.ConfigNodes[i].Value;
 							break;
-						case "targetResolutionX":
-							targetResolutionX = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+
+						case "trackingInterpolationX":
+							interpolationX = m_unityTuioXMLConfig.ConfigNodes[i].Value;
 							break;
-						case "targetResolutionY":
-							targetResolutionY = m_unityTuioXMLConfig.ConfigNodes[i].Value;
+
+						case "trackingInterpolationY":
+							interpolationY = m_unityTuioXMLConfig.ConfigNodes[i].Value;
 							break;
-						case "stageX":
+
+						case "trackingStageX":
 							stageX = m_unityTuioXMLConfig.ConfigNodes[i].Value;
 							break;
-						case "stageY":
+
+						case "trackingStageY":
 							stageY = m_unityTuioXMLConfig.ConfigNodes[i].Value;
 							break;
+
 						default:
 							break;
 					}
-					
 				}
-				
+
 				bool configTrackingEnabledBool;
 				if (configTrackingEnabled != null && Boolean.TryParse(configTrackingEnabled, out configTrackingEnabledBool))
 				{
 					m_tuioSettings.TrackingEnabled = configTrackingEnabledBool;
-					Debug.Log(string.Format("XML config: TUIO tracking enabled: {0}", m_tuioSettings.TrackingEnabled));
-				} else {
-					Debug.Log(string.Format("XML config: invalid TUIO enabled config. Using settings from prefab instead: TUIO tracking enabled: {0}", m_tuioSettings.TrackingEnabled));
+					Debug.Log(string.Format("TUIO XML config: TUIO tracking enabled: {0}", m_tuioSettings.TrackingEnabled));
 				}
-				
+				//else
+				//{
+				//	Debug.Log(string.Format("TUIO XML config: couldn't load enabled config. Tracking enabled: {0}", m_tuioSettings.TrackingEnabled));
+				//}
+
 				int configUDPPortInt;
 				if (configUDPPort != null && int.TryParse(configUDPPort, out configUDPPortInt))
 				{
 					m_tuioSettings.UDP_Port = configUDPPortInt;
-					Debug.Log(string.Format("XML config: TUIO using UDP Port: {0}", configUDPPort));
-				} else { 	
-					Debug.LogWarning("XML config: invalid TUIO Port config");
-				}
-				
-				int configResolutionIntX;
-				int configResolutionIntY;
-				if (targetResolutionX != null && int.TryParse(targetResolutionX, out configResolutionIntX) &&
-				    targetResolutionY != null && int.TryParse(targetResolutionY, out configResolutionIntY))
-				{
-					m_tuioSettings.TargetScreenWidth = configResolutionIntX;
-					m_tuioSettings.TargetScreenHeight = configResolutionIntY;
-					Debug.Log(string.Format("XML config: new target resolution: {0}x{1}", m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight));
+					Debug.Log(string.Format("TUIO XML config: TUIO using UDP Port: {0}", configUDPPort));
 				}
 				else
 				{
-					Debug.LogWarning(string.Format("XML config: invalid resolution config, using resolution specified in TuioManager prefab instead: {0}x{1}", m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight));
+					Debug.LogWarning("TUIO XML config: invalid TUIO Port config");
 				}
+
+				int configInterpolationIntX;
+				int configInterpolationIntY;
+				if (interpolationX != null && int.TryParse(interpolationX, out configInterpolationIntX) &&
+					interpolationY != null && int.TryParse(interpolationY, out configInterpolationIntY))
+				{
+					m_tuioSettings.TrackingInterpolationX = configInterpolationIntX;
+					m_tuioSettings.TrackingInterpolationY = configInterpolationIntY;
+					Debug.Log(string.Format("TUIO XML config: tracking interpolation: {0}x{1}", m_tuioSettings.TrackingInterpolationX, m_tuioSettings.TrackingInterpolationY));
+				}
+				//else
+				//{
+				//	Debug.Log(string.Format("TUIO XML config: invalid interpolation config. Using: {0}x{1}", m_tuioSettings.TrackingInterpolationX, m_tuioSettings.TrackingInterpolationY));
+				//}
 
 				float configStageFloatX;
 				float configStageFloatY;
 				if (stageX != null && float.TryParse(stageX, out configStageFloatX) &&
 					stageY != null && float.TryParse(stageY, out configStageFloatY))
 				{
-					m_tuioSettings.StageX = configStageFloatX;
-					m_tuioSettings.StageY = configStageFloatY;
-					Debug.Log(string.Format("XML config: new stage size: {0}x{1}", m_tuioSettings.StageX, m_tuioSettings.StageY));
+					m_tuioSettings.TrackingStageX = configStageFloatX;
+					m_tuioSettings.TrackingStageY = configStageFloatY;
+					Debug.Log(string.Format("TUIO XML config: stage size: {0}x{1}", m_tuioSettings.TrackingStageX, m_tuioSettings.TrackingStageY));
 				}
-				else
-				{
-					Debug.LogWarning(string.Format("XML config: invalid stage size config, using stage size specified in TuioManager prefab instead: {0}x{1}", m_tuioSettings.StageX, m_tuioSettings.StageY));
-				}
+				//else
+				//{
+				//	Debug.Log(string.Format("TUIO XML config: invalid stage config. Using: {0}x{1}", m_tuioSettings.TrackingStageX, m_tuioSettings.TrackingStageY));
+				//}
 			}
 			else
 			{
-				Debug.Log("no config xml file found in resources: using default TUIO settings");
+				Debug.Log("no TUIO config xml file found in resources: Disable and Destroy UnityTuioManager");
+				this.enabled = false;
+				Destroy(this);
+				yield break;
 			}
 			// end: load config file
-			
-			if (!m_tuioSettings.TrackingEnabled) 
+
+			if (!m_tuioSettings.TrackingEnabled)
 			{
-				Debug.Log("Disable and Destroy UnityTuioManager");
+				Debug.Log("TUIO tracking disabled in config: Disable and Destroy UnityTuioManager");
 				this.enabled = false;
 				Destroy(this);
 				yield break;
 			}
 
-			Screen.SetResolution(m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight, true);
-
 			m_listener = new UnityTuioListener(m_tuioSettings.UDP_Port);
 			m_eventProcessor = new UnityTuioEventProcessor(m_listener);
-			
-			
+
 			if (OnTrackingInitialized != null)
 			{
 				OnTrackingInitialized(this, new EventArgs());
 			}
 
-			TrackingAdapter.InjectTrackingManager (m_instance);
-			
+			TrackingAdapter.InjectTrackingManager(m_instance);
+
 			UpdateDebugGUI();
 		}
-		
-		private void UpdateDebugGUI()
+
+		private void UpdateDebugGUI ()
 		{
-			if (trackingType != null) {
+			if (trackingType != null)
+			{
 				trackingType.text = "Tracking System: TUIO";
 			}
-			if (protocolStatus != null) {
-				protocolStatus.text = string.Format ("Protocol: UDP Port:{0}", m_tuioSettings.UDP_Port);
+			if (protocolStatus != null)
+			{
+				protocolStatus.text = string.Format("Protocol: UDP port:{0}", m_tuioSettings.UDP_Port);
 			}
-			if (resolutionStatus != null) {
-				resolutionStatus.text = string.Format ("Resolution: {0} x {1}", m_tuioSettings.TargetScreenWidth, m_tuioSettings.TargetScreenHeight);
+			if (interpolationStatus != null)
+			{
+				interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", m_tuioSettings.TrackingInterpolationX, m_tuioSettings.TrackingInterpolationY);
+			}
+			if (stageStatus != null)
+			{
+				stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", m_tuioSettings.TrackingStageX, m_tuioSettings.TrackingStageY);
 			}
 		}
 
-		private IEnumerator ReconnectTuioListenerDelayed(float theDelay)
+		private IEnumerator ReconnectTuioListenerDelayed (float theDelay)
 		{
 			m_listener.Shutdown();
 			yield return new WaitForSeconds(theDelay);
 			m_listener.Reconnect();
 		}
-		
-		private IEnumerator LoadConfigXML()
+
+		private IEnumerator LoadConfigXML ()
 		{
-//			Debug.Log ("Trying to load config file");
+			// Debug.Log("Trying to load config file");
 			string aPathToConfigXML = Path.Combine(Application.dataPath, "tuioConfig.xml");
 			aPathToConfigXML = "file:///" + aPathToConfigXML;
             UnityWebRequest request = UnityWebRequest.Get(aPathToConfigXML);
@@ -329,69 +374,69 @@ namespace UnityTuio
 
             if (!request.isNetworkError && !request.isHttpError)
             {
-//				Debug.Log ("no errors occured during config file load");
+            // Debug.Log ("no errors occured during config file load");
 				m_unityTuioXMLConfig = UnityTuioXMLConfig.LoadFromText(request.downloadHandler.text);
 			}
 		}
 
-		private void HandleKeyboardInputs()
+		private void HandleKeyboardInputs ()
 		{
-			if(Input.GetKeyDown(KeyCode.R))
+			if (Input.GetKeyDown(KeyCode.R))
 			{
-				ReconnectTuioListener();
+				ReconnectListener();
 			}
 
 			if (Input.GetKeyDown(KeyCode.Tab))
 			{
-				if(canvasControl != null)
+				if (canvasControl != null)
 				{
 					canvasControl.SetActive(true);
 					UpdateDebugGUI();
 				}
-			} 
-			else if (Input.GetKeyUp(KeyCode.Tab)) 
+			}
+			else if (Input.GetKeyUp(KeyCode.Tab))
 			{
-				if(canvasControl != null)
+				if (canvasControl != null)
 				{
 					canvasControl.SetActive(false);
 					UpdateDebugGUI();
 				}
 			}
 		}
-		#endregion
+		#endregion private methods
 
 		#region Interface properties
-		public int TargetScreenWidth
+		public int TrackingInterpolationX
 		{
-			get{ return Instance.m_tuioSettings.TargetScreenWidth; }
+			get { return Instance.m_tuioSettings.TrackingInterpolationX; }
 		}
-		public int TargetScreenHeight
+		public int TrackingInterpolationY
 		{
-			get{ return Instance.m_tuioSettings.TargetScreenHeight; }
+			get { return Instance.m_tuioSettings.TrackingInterpolationY; }
 		}
 
 		public float TrackingStageX
 		{
-			get { return Instance.m_tuioSettings.StageX; }
+			get { return Instance.m_tuioSettings.TrackingStageX; }
 		}
 		public float TrackingStageY
 		{
-			get { return Instance.m_tuioSettings.StageY; }
+			get { return Instance.m_tuioSettings.TrackingStageY; }
 		}
-		#endregion
+		#endregion Interface properties
 
 		#region Interface methods
-		public Vector2 GetScreenPositionFromRelativePosition(float x, float y)
+		public Vector2 GetScreenPositionFromRelativePosition (float x, float y)
 		{
-			return new Vector2((int)Mathf.Round(x * m_tuioSettings.TargetScreenWidth), m_tuioSettings.TargetScreenHeight - (int)Mathf.Round(y * m_tuioSettings.TargetScreenHeight));
+			return new Vector2((int) Mathf.Round(x * m_tuioSettings.TrackingInterpolationX), m_tuioSettings.TrackingInterpolationY - (int) Mathf.Round(y * m_tuioSettings.TrackingInterpolationY));
 		}
-		#endregion
+		#endregion Interface methods
 
 		#region static methods
 		public static Vector2 GetScreenPositionFromRelativePosition (TuioPoint tuioPoint)
 		{
-			return new Vector2(tuioPoint.getScreenX(Instance.m_tuioSettings.TargetScreenWidth), Instance.m_tuioSettings.TargetScreenHeight - tuioPoint.getScreenY(Instance.m_tuioSettings.TargetScreenHeight));
+			return new Vector2(tuioPoint.getScreenX(Instance.m_tuioSettings.TrackingInterpolationX), Instance.m_tuioSettings.TrackingInterpolationY - tuioPoint.getScreenY(Instance.m_tuioSettings.TrackingInterpolationY));
 		}
-		#endregion
+		#endregion static methods
 	}
 }

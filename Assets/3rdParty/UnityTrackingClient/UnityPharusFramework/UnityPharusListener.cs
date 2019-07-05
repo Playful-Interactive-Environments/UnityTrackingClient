@@ -108,7 +108,7 @@ namespace UnityPharus
 		{
 			while (m_client != null && m_client.Connected)
 			{
-				Debug.LogWarning("Client still connecting. Waiting...");
+				Debug.LogWarning("Client still connecting to port. Waiting...");
 			}
 			
 			m_eventQueue = new Queue<PharusEvent>();
@@ -128,20 +128,20 @@ namespace UnityPharus
 			m_connecting = false;
 			if (!m_client.Connected) 
 			{
-				Debug.LogWarning (string.Format ("Couldn't connect to remote PharusServer at {0}:{1}", m_ipAddress, m_port));
+				Debug.LogWarning (string.Format ("Couldn't connect to port at {0}:{1} ({2})", m_ipAddress, m_port, m_useUDP ? "UDP" : "TCP"));
 				m_client.UnregisterTransmissionReceiver (this);
 				m_client.Disconnect();
 				m_client = null;
 			}
 			else 
 			{
-				Debug.Log (string.Format ("--- Connection establised: receiving data from PharusServer at {0}:{1} ---", m_ipAddress, m_port));
+				Debug.Log (string.Format ("--- Connected to port: {0}:{1} ({2}) | listening for pharus data...  ---", m_ipAddress, m_port, m_useUDP ? "UDP" : "TCP"));
 			}
 		}
 
 		private void OnAbruptDisconnect(string message)
 		{
-			Debug.LogWarning(string.Format ("--- Abrupt disconnect from Server: {0} ---", message));
+			Debug.LogWarning(string.Format ("--- Abrupt disconnect: {0} ---", message));
 		}
 		#endregion
 		
@@ -173,7 +173,7 @@ namespace UnityPharus
 					m_client.UnregisterTransmissionReceiver(this);
 				} 
 				m_client = null;
-				Debug.Log("--- Disconnected from PharusServer: port is now free ---");
+				Debug.Log(string.Format("--- Disconnected from port: {0} ---", m_port));
 			}
 			else
 			{
