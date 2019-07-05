@@ -1,6 +1,6 @@
 /*
  TUIO C# Library - part of the reacTIVision project
- Copyright (c) 2005-2014 Martin Kaltenbrunner <martin@tuio.org>
+ Copyright (c) 2005-2016 Martin Kaltenbrunner <martin@tuio.org>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ namespace TUIO
      * on the other hand the TuioPoint is the base class for the TuioCursor and TuioObject classes.
      *
      * @author Martin Kaltenbrunner
-     * @version 1.1.5
+     * @version 1.1.6
      */
     public class TuioPoint
     {
@@ -212,10 +212,10 @@ namespace TUIO
          * <param name="yp">the Y coordinate of the distant point</param>
          * <returns>the distance to the provided coordinates</returns>
          */
-        public float getDistance(float x, float y)
+        public float getDistance(float xp, float yp)
         {
-            float dx = xpos - x;
-            float dy = ypos - y;
+            float dx = xpos - xp;
+            float dy = ypos - yp;
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 

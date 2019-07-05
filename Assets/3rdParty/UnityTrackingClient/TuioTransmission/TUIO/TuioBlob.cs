@@ -1,6 +1,6 @@
 /*
  TUIO C# Library - part of the reacTIVision project
- Copyright (c) 2005-2014 Martin Kaltenbrunner <martin@tuio.org>
+ Copyright (c) 2005-2016 Martin Kaltenbrunner <martin@tuio.org>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@ namespace TUIO
      * </remarks>
      *
      * @author Martin Kaltenbrunner
-     * @version 1.1.5
+     * @version 1.1.6
      */
     public class TuioBlob : TuioContainer
     {
@@ -119,7 +119,7 @@ namespace TUIO
          * and angle, and assigs these values to the newly created TuioBlob.</summary>
          *
          * <param name="si">the Session ID to assign</param>
-         * <param name="sym">the Symbol ID to assign</param>
+         * <param name="bi">the Blob ID to assign</param>
          * <param name="xp">the X coordinate to assign</param>
          * <param name="yp">the Y coordinate to assign</param>
          * <param name="a">the angle to assign</param>

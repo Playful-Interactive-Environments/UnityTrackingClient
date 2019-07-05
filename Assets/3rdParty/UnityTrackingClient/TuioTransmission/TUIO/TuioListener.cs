@@ -1,6 +1,6 @@
 /*
  TUIO C# Library - part of the reacTIVision project
- Copyright (c) 2005-2014 Martin Kaltenbrunner <martin@tuio.org>
+ Copyright (c) 2005-2016 Martin Kaltenbrunner <martin@tuio.org>
 
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,6 @@ namespace TUIO
 {
 
     /**
-     * <remarks
      * <para>
      * The TuioListener interface provides a simple callback infrastructure which is used by the {@link TuioClient} class
      * to dispatch TUIO events to all registered instances of classes that implement the TuioListener interface defined here.
@@ -31,7 +30,6 @@ namespace TUIO
      * Any class that implements the TuioListener interface is required to implement all of the callback methods defined here.
      * The {@link TuioClient} makes use of these interface methods in order to dispatch TUIO events to all registered TuioListener implementations.
      * </para>
-     * </remarks>
      * <example>
      * <code>
      * public class MyTuioListener implements TuioListener
@@ -44,7 +42,7 @@ namespace TUIO
      * </example>
      *
      * @author Martin Kaltenbrunner
-     * @version 1.1.5
+     * @version 1.1.6
      */
     public interface TuioListener
     {
