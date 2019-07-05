@@ -6,19 +6,19 @@
 		<ConfigNode name="udp-port">
 			<Value>3333</Value>
 		</ConfigNode>
-		<ConfigNode name="targetResolutionX">
+		<ConfigNode name="trackingInterpolationX">
 			<!-- in pixel -->
 			<Value>1920</Value>
 		</ConfigNode>
-		<ConfigNode name="targetResolutionY">
+		<ConfigNode name="trackingInterpolationY">
 			<!-- in pixel -->
 			<Value>1080</Value>
 		</ConfigNode>
-		<ConfigNode name="stageX">
+		<ConfigNode name="trackingStageX">
 			<!-- horizontal in centimeter -->
 			<Value>1600</Value>
 		</ConfigNode>
-		<ConfigNode name="stageY">
+		<ConfigNode name="trackingStageY">
 			<!-- vertical in centimeter -->
 			<Value>900</Value>
 		</ConfigNode>
