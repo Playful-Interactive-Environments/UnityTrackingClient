@@ -2,7 +2,7 @@ using Assets.Tracking_Framework.TransmissionFramework;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Tracking_Framework
+namespace Assets.Tracking_Framework.Player
 {
     /// <summary>
     /// Derive your tracking driven entities from this.

@@ -1,23 +1,20 @@
-﻿using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
+﻿using Assets.Tracking_Framework.Interfaces;
+using Assets.Tracking_Framework.TransmissionFramework;
+using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using System;
-using System.Collections;
-using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.UI;
 
-namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
+namespace Assets.Tracking_Framework.Services
 {
     /// <summary>
-    /// The UnityPharusManager keeps control over the UnityPharusListener and the UnityPharusEventProcessor.
+    /// The PharusTrackingService keeps control over the UnityPharusListener and the UnityPharusEventProcessor.
     /// </summary>
-    [AddComponentMenu("UnityPharus/UnityPharusManager")]
-    public class UnityPharusManager : MonoBehaviour, ITrackingManager
+    public class PharusTrackingService : ITrackingService
     {
         /// <summary>
         /// General PharusTransmission Settings
         /// </summary>
-        [System.Serializable]
         public class PharusSettings
         {
             public enum EProtocolType
@@ -26,32 +23,20 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
                 UDP
             }
 
-            [SerializeField] private bool _tracklinkEnabled = true;
-            [SerializeField] private EProtocolType _protocol = EProtocolType.UDP;
-            [SerializeField] private string _tcpRemoteIpAddress = "127.0.0.1";
-            [SerializeField] private int _tcpLocalPort = 44345;
-            [SerializeField] private string _udpMulticastIpAddress = "239.1.1.1";
-            [SerializeField] private int _udpLocalPort = 44345;
-
-            [Tooltip("in pixel")]
-            [SerializeField]
+            private bool _tracklinkEnabled = true;
+            private EProtocolType _protocol = EProtocolType.UDP;
+            private string _tcpRemoteIpAddress = "127.0.0.1";
+            private int _tcpLocalPort = 44345;
+            private string _udpMulticastIpAddress = "239.1.1.1";
+            private int _udpLocalPort = 44345;
+            // the resolution, in unity units
             private int _trackingInterpolationX = 1920;
-
-            [Tooltip("in pixel")]
-            [SerializeField]
             private int _trackingInterpolationY = 1080;
-
-            [Tooltip("in centimeter")]
-            [SerializeField]
+            // the real size of play space in cm
             private float _trackingStageX = 1600f;
-
-            [Tooltip("in centimeter")]
-            [SerializeField]
             private float _trackingStageY = 900f;
-
-            [Tooltip("Use a negative value to prevent automatically server reconnecting")]
-            [SerializeField]
-            private float _checkServerReconnectIntervall = 5;
+            // in milliseconds
+            private int _checkServerReconnectIntervall = 5000;
 
             public bool TracklinkEnabled
             {
@@ -103,7 +88,7 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
                 get { return this._trackingStageY; }
                 set { this._trackingStageY = value; }
             }
-            public float CheckServerReconnectIntervall
+            public int CheckServerReconnectIntervall
             {
                 get { return this._checkServerReconnectIntervall; }
             }
@@ -111,22 +96,16 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
 
         #region event handlers
 
-        public event EventHandler<EventArgs> OnTrackingInitialized;
+        public static event EventHandler<EventArgs> OnTrackingInitialized;
 
         #endregion event handlers
 
         #region exposed inspector fields
         [SerializeField] private bool m_persistent = true;
         [SerializeField] private PharusSettings m_pharusSettings = new PharusSettings();
-
-        public GameObject canvasControl;
-        public Text trackingType;
-        public Text protocolStatus;
-        public Text interpolationStatus;
-        public Text stageStatus;
         #endregion exposed inspector fields
 
-        private UnityPharusXMLConfig m_unityPharusXMLConfig;
+        private TrackingXMLConfig _mTrackingXmlConfig;
         private bool m_initialized = false;
         private UnityPharusListener m_listener;
         private UnityPharusEventProcessor m_eventProcessor;
@@ -136,82 +115,60 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
             get { return m_eventProcessor; }
         }
 
-        #region Singleton pattern
-        private static UnityPharusManager m_instance;
-        public static UnityPharusManager Instance
-        {
-            get
-            {
-                if (m_instance == null)
-                {
-                    m_instance = (UnityPharusManager)FindObjectOfType(typeof(UnityPharusManager));
-                    if (m_instance == null)
-                    {
-                        // Debug.Log(string.Format ("No instance of {0} available.", typeof(UnityPharusManager)));
-                    }
-                    else
-                    {
-                        m_instance.Awake();
-                    }
-                }
-                return m_instance;
-            }
-        }
-        #endregion Singleton pattern
 
         #region unity messages
-        private void Awake()
-        {
-            if (m_instance == null)
-            {
-                m_instance = this;
-            }
-            else
-            {
-                if (m_instance != this)
-                {
-                    Debug.Log(string.Format("Other instance of {0} detected (will be destroyed)", typeof(UnityPharusManager)));
-                    GameObject.Destroy(this.gameObject);
-                    return;
-                }
-            }
-        }
+        //private void Awake()
+        //{
+        //    if (m_instance == null)
+        //    {
+        //        m_instance = this;
+        //    }
+        //    else
+        //    {
+        //        if (m_instance != this)
+        //        {
+        //            Debug.Log(string.Format("Other instance of {0} detected (will be destroyed)", typeof(PharusTrackingService)));
+        //            GameObject.Destroy(this.gameObject);
+        //            return;
+        //        }
+        //    }
+        //}
 
-        private void OnEnable()
-        {
-            if (!m_initialized)
-            {
-                StartCoroutine(InitInstance());
-            }
-        }
+        //private void OnEnable()
+        //{
+        //    if (!m_initialized)
+        //    {
+        //        StartCoroutine(InitInstance());
+        //    }
+        //}
 
-        private void OnDisable()
-        {
-            Component.Destroy(this);
-        }
+        //private void OnDisable()
+        //{
+        //    Component.Destroy(this);
+        //}
 
-        private void Update()
-        {
-            HandleKeyboardInputs();
+        //private void Update()
+        //{
+        //    //HandleKeyboardInputs();
 
-            //Lister for Pharus Data if Tracklink is enabled
-            if (m_eventProcessor != null)
-            {
-                m_eventProcessor.Process();
-            }
-        }
+        //    //Lister for Pharus Data if Tracklink is enabled
+        //    if (m_eventProcessor != null)
+        //    {
+        //        m_eventProcessor.Process();
+        //    }
+        //}
 
-        private void OnDestroy()
-        {
-            if (m_listener != null)
-            {
-                m_listener.Shutdown();
-            }
-        }
+        //private void OnDestroy()
+        //{
+        //    if (m_listener != null)
+        //    {
+        //        m_listener.Shutdown();
+        //    }
+        //}
         #endregion unity messages
 
         #region public methods
-        public void ReconnectListener(float theDelay = -1f)
+        public void Reconnect(int theDelay = -1)
         {
             if (theDelay <= 0)
             {
@@ -219,7 +176,7 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
             }
             else
             {
-                StartCoroutine(ReconnectListenerDelayed(theDelay));
+                this.ReconnectTuioListenerDelayed(theDelay);
             }
         }
 
@@ -234,26 +191,41 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
             this.m_pharusSettings.TrackingStageX = x;
             this.m_pharusSettings.TrackingStageY = y;
         }
-        #endregion public methods
 
-        #region private methods
-        private IEnumerator InitInstance()
+        public void Update()
         {
-            m_initialized = true;
+            //Lister for Pharus Data if Tracklink is enabled
+
+            if (m_eventProcessor != null)
+            {
+                m_eventProcessor.Process();
+            }
+        }
+
+        public void Shutdown()
+        {
+            if (m_listener != null)
+            {
+                m_listener.Shutdown();
+            }
+        }
+
+        public void Initialize(TrackingXMLConfig config)
+        {
+            Debug.Log("Initialize Pharus");
 
             if (m_pharusSettings.CheckServerReconnectIntervall > 0)
             {
-                StartCoroutine(CheckServerAlive(m_pharusSettings.CheckServerReconnectIntervall));
+                Task.Run(() => CheckServerAlive(m_pharusSettings.CheckServerReconnectIntervall));
             }
 
-            if (m_persistent)
-            {
-                GameObject.DontDestroyOnLoad(this.gameObject);
-            }
+            //if (m_persistent)
+            //{
+            //    GameObject.DontDestroyOnLoad(this.gameObject);
+            //}
 
             // start: load config file
-            yield return StartCoroutine(LoadConfigXML());
-            if (m_unityPharusXMLConfig != null)
+            if (_mTrackingXmlConfig != null)
             {
                 string configTrackLinkEnabled = null;
                 string configProtocol = null;
@@ -265,48 +237,48 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
                 string interpolationY = null;
                 string stageX = null;
                 string stageY = null;
-                for (int i = 0; i < m_unityPharusXMLConfig.ConfigNodes.Length; i++)
+                for (int i = 0; i < _mTrackingXmlConfig.ConfigNodes.Length; i++)
                 {
-                    switch (m_unityPharusXMLConfig.ConfigNodes[i].Name)
+                    switch (_mTrackingXmlConfig.ConfigNodes[i].Name)
                     {
-                        case "enabled":
-                            configTrackLinkEnabled = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                        case "tracklink-enabled":
+                            configTrackLinkEnabled = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
-                        case "protocol":
-                            configProtocol = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                        case "tracklink-protocol":
+                            configProtocol = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
-                        case "tcp-ip":
-                            configTCPIP = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                        case "tracklink-tcp-ip":
+                            configTCPIP = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
-                        case "tcp-port":
-                            configTCPPort = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                        case "tracklink-tcp-port":
+                            configTCPPort = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
-                        case "udp-multicast-ip":
-                            configUDPMulticastIP = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                        case "tracklink-multicast-ip":
+                            configUDPMulticastIP = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
-                        case "udp-port":
-                            configUDPPort = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                        case "tracklink-udp-port":
+                            configUDPPort = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
                         case "trackingInterpolationX":
-                            interpolationX = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                            interpolationX = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
                         case "trackingInterpolationY":
-                            interpolationY = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                            interpolationY = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
                         case "trackingStageX":
-                            stageX = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                            stageX = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
                         case "trackingStageY":
-                            stageY = m_unityPharusXMLConfig.ConfigNodes[i].Value;
+                            stageY = _mTrackingXmlConfig.ConfigNodes[i].Value;
                             break;
 
                         default:
@@ -402,19 +374,17 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
             }
             else
             {
-                Debug.Log("no TrackLink config xml file found in resources: Disable and Destroy UnityPharusManager");
-                this.enabled = false;
-                Destroy(this);
-                yield break;
+                Debug.Log("no TrackLink config xml file found in resources: Disable and Destroy PharusTrackingService");
+                //this.enabled = false;
+                //Destroy(this);
             }
             // end: load config file
 
             if (!m_pharusSettings.TracklinkEnabled)
             {
-                Debug.Log("Pharus tracking disabled in config: Disable and Destroy UnityPharusManager");
-                this.enabled = false;
-                Destroy(this);
-                yield break;
+                Debug.Log("Pharus tracking disabled in config: Disable and Destroy PharusTrackingService");
+                //this.enabled = false;
+                //Destroy(this);
             }
 
             if (m_pharusSettings.Protocol == PharusSettings.EProtocolType.TCP)
@@ -428,7 +398,6 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
             else
             {
                 Debug.LogError("Invalid pharus settings!");
-                yield break;
             }
             m_eventProcessor = new UnityPharusEventProcessor(m_listener);
 
@@ -437,87 +406,33 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
                 OnTrackingInitialized(this, new EventArgs());
             }
 
-            TrackingAdapter.InjectTrackingManager(m_instance);
+            TrackingAdapter.InjectTrackingManager(this);
 
-            UpdateDebugGUI();
+            //UpdateDebugGUI();
         }
 
-        private void HandleKeyboardInputs()
-        {
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                if (canvasControl != null)
-                {
-                    canvasControl.SetActive(true);
-                    UpdateDebugGUI();
-                }
-            }
-            else if (Input.GetKeyUp(KeyCode.Tab))
-            {
-                if (canvasControl != null)
-                {
-                    canvasControl.SetActive(false);
-                    UpdateDebugGUI();
-                }
-            }
-        }
+        #endregion public methods
 
-        private void UpdateDebugGUI()
-        {
-            if (trackingType != null)
-            {
-                trackingType.text = "Tracking System: TrackLink";
-            }
-            if (protocolStatus != null)
-            {
-                string ipAddress = m_pharusSettings.Protocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.UDP_Multicast_IP_Address : m_pharusSettings.TCP_IP_Address;
-                string port = m_pharusSettings.Protocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.UDP_Port.ToString() : m_pharusSettings.TCP_Port.ToString();
-                protocolStatus.text = string.Format("Protocol: {0} {1} : {2}", m_pharusSettings.Protocol, ipAddress, port);
-            }
-            if (interpolationStatus != null)
-            {
-                interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", m_pharusSettings.TrackingInterpolationX, m_pharusSettings.TrackingInterpolationY);
-            }
-            if (stageStatus != null)
-            {
-                stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", m_pharusSettings.TrackingStageX, m_pharusSettings.TrackingStageY);
-            }
-        }
+        #region private methods
 
-        private IEnumerator ReconnectListenerDelayed(float theDelay)
+        private async void ReconnectTuioListenerDelayed(int theDelay)
         {
             m_listener.Shutdown();
-            yield return new WaitForSeconds(theDelay);
+            await Task.Delay(theDelay);
             m_listener.Reconnect();
         }
-
-        private IEnumerator CheckServerAlive(float theWaitBetweenCheck)
+        
+        private async void CheckServerAlive(int theWaitBetweenCheck)
         {
             while (true)
             {
-                yield return new WaitForSeconds(theWaitBetweenCheck);
+                Debug.Log("CheckServerAlive");
+                await Task.Delay(theWaitBetweenCheck);
                 if (m_listener != null && !m_listener.IsCurrentlyConnecting && !m_listener.HasDataReceivedSinceLastCheck())
                 {
                     Debug.LogWarning(string.Format("--- There might be a connection problem. (No data received in the past {0} seconds)---", theWaitBetweenCheck));
-                    StartCoroutine(ReconnectListenerDelayed(1f));
+                    this.ReconnectTuioListenerDelayed(1000);
                 }
-            }
-        }
-
-        private IEnumerator LoadConfigXML()
-        {
-            // Debug.Log("Trying to load config file");
-            string aPathToConfigXML = Path.Combine(Application.dataPath, "trackLinkConfig.xml");
-            aPathToConfigXML = "file:///" + aPathToConfigXML;
-            UnityWebRequest request = UnityWebRequest.Get(aPathToConfigXML);
-            // Debug.Log("start loading file...");
-            yield return request.SendWebRequest();
-            // Debug.Log("file loading complete");
-
-            if (!request.isNetworkError && !request.isHttpError)
-            {
-                // Debug.Log("no errors occured during config file load");
-                m_unityPharusXMLConfig = UnityPharusXMLConfig.LoadFromText(request.downloadHandler.text);
             }
         }
         #endregion private methods
@@ -525,20 +440,20 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
         #region interface properties
         public int TrackingInterpolationX
         {
-            get { return Instance.m_pharusSettings.TrackingInterpolationX; }
+            get { return m_pharusSettings.TrackingInterpolationX; }
         }
         public int TrackingInterpolationY
         {
-            get { return Instance.m_pharusSettings.TrackingInterpolationY; }
+            get { return m_pharusSettings.TrackingInterpolationY; }
         }
 
         public float TrackingStageX
         {
-            get { return Instance.m_pharusSettings.TrackingStageX; }
+            get { return m_pharusSettings.TrackingStageX; }
         }
         public float TrackingStageY
         {
-            get { return Instance.m_pharusSettings.TrackingStageY; }
+            get { return m_pharusSettings.TrackingStageY; }
         }
         #endregion interface properties
 
@@ -547,13 +462,14 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
         {
             return new Vector2((int)Mathf.Round(x * m_pharusSettings.TrackingInterpolationX), m_pharusSettings.TrackingInterpolationY - (int)Mathf.Round(y * m_pharusSettings.TrackingInterpolationY));
         }
+
         #endregion interface methods
 
-        #region static methods
-        public static Vector2 GetScreenPositionFromRelativePosition(Vector2f pharusTrackPosition)
-        {
-            return Instance.GetScreenPositionFromRelativePosition(pharusTrackPosition.x, pharusTrackPosition.y);
-        }
-        #endregion static methods
+        //#region static methods
+        //public Vector2 GetScreenPositionFromRelativePosition(Vector2f pharusTrackPosition)
+        //{
+        //    return GetScreenPositionFromRelativePosition(pharusTrackPosition.x, pharusTrackPosition.y);
+        //}
+        //#endregion static methods
     }
 }

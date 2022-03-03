@@ -1,0 +1,45 @@
+<TrackingXMLConfig>
+  <ConfigNodes>
+    <ConfigNode name="tuio-enabled">
+      <Value>true</Value>
+    </ConfigNode>
+    <ConfigNode name="tracklink-enabled">
+      <Value>true</Value>
+    </ConfigNode>
+    <ConfigNode name="trackingInterpolationX">
+      <!-- in pixel -->
+      <Value>1920</Value>
+    </ConfigNode>
+    <ConfigNode name="trackingInterpolationY">
+      <!-- in pixel -->
+      <Value>1080</Value>
+    </ConfigNode>
+    <ConfigNode name="trackingStageX">
+      <!-- horizontal in centimeter -->
+      <Value>1600</Value>
+    </ConfigNode>
+    <ConfigNode name="trackingStageY">
+      <!-- vertical in centimeter -->
+      <Value>900</Value>
+    </ConfigNode>
+    <ConfigNode name="tuio-udp-port">
+      <Value>3333</Value>
+    </ConfigNode>
+    <ConfigNode name="tracklink-protocol">
+      <!--- UDP | TCP	-->
+      <Value>udp</Value>
+    </ConfigNode>
+    <ConfigNode name="tracklink-multicast-ip">
+      <Value>239.1.1.1</Value>
+    </ConfigNode>
+    <ConfigNode name="tracklink-udp-port">
+      <Value>44345</Value>
+    </ConfigNode>
+    <ConfigNode name="tracklink-tcp-ip">
+      <Value>127.0.0.1</Value>
+    </ConfigNode>
+    <ConfigNode name="tracklink-tcp-port">
+      <Value>44345</Value>
+    </ConfigNode>
+  </ConfigNodes>
+</TrackingXMLConfig>

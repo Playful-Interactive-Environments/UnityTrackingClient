@@ -1,4 +1,5 @@
-﻿using Assets.Tracking_Framework.TransmissionFramework.TuioTransmission.TUIO;
+﻿using Assets.Tracking_Framework.Services;
+using Assets.Tracking_Framework.TransmissionFramework.TuioTransmission.TUIO;
 using Assets.Tracking_Framework.TransmissionFramework.UnityTuioFramwork;
 using System.Collections.Generic;
 using System.Data;
@@ -155,61 +156,47 @@ namespace Assets.Tracking_Framework.TrackingEvaluation.TUIO
 		{
 			_recordTable = GetNewTable();
 
-			if(UnityTuioManager.Instance != null)
-			{
-				if(_recordTuioCursors)
-				{
-					UnityTuioManager.Instance.EventProcessor.CursorAdded += OnCursorAdded;
-					UnityTuioManager.Instance.EventProcessor.CursorUpdated += OnCursorUpdated;
-					UnityTuioManager.Instance.EventProcessor.CursorRemoved += OnCursorRemoved;
-				}
-				if(_recordTuioObjects)
-				{
-					UnityTuioManager.Instance.EventProcessor.ObjectAdded += OnObjectAdded;
-					UnityTuioManager.Instance.EventProcessor.ObjectUpdated += OnObjectUpdated;
-					UnityTuioManager.Instance.EventProcessor.ObjectRemoved += OnObjectRemoved;
-				}
-				if(_recordTuioBlobs)
-				{
-					UnityTuioManager.Instance.EventProcessor.BlobAdded += OnBlobAdded;
-					UnityTuioManager.Instance.EventProcessor.BlobUpdated += OnBlobUpdated;
-					UnityTuioManager.Instance.EventProcessor.BlobRemoved += OnBlobRemoved;
-				}
-			}
-			else
-			{
-				UnityEngine.Debug.LogWarning("Couldn't start recording, UnityTuioManager was not found");
-			}
-		}
+            if (_recordTuioCursors)
+            {
+                UnityTuioEventProcessor.CursorAdded += OnCursorAdded;
+                UnityTuioEventProcessor.CursorUpdated += OnCursorUpdated;
+                UnityTuioEventProcessor.CursorRemoved += OnCursorRemoved;
+            }
+            if (_recordTuioObjects)
+            {
+                UnityTuioEventProcessor.ObjectAdded += OnObjectAdded;
+                UnityTuioEventProcessor.ObjectUpdated += OnObjectUpdated;
+                UnityTuioEventProcessor.ObjectRemoved += OnObjectRemoved;
+            }
+            if (_recordTuioBlobs)
+            {
+                UnityTuioEventProcessor.BlobAdded += OnBlobAdded;
+                UnityTuioEventProcessor.BlobUpdated += OnBlobUpdated;
+                UnityTuioEventProcessor.BlobRemoved += OnBlobRemoved;
+            }
+        }
 
 		public void StopRecording()
 		{
-			if(!ReferenceEquals(UnityTuioManager.Instance,null))
-			{
-				if(_recordTuioCursors)
-				{
-					UnityTuioManager.Instance.EventProcessor.CursorAdded -= OnCursorAdded;
-					UnityTuioManager.Instance.EventProcessor.CursorUpdated -= OnCursorUpdated;
-					UnityTuioManager.Instance.EventProcessor.CursorRemoved -= OnCursorRemoved;
-				}
-				if(_recordTuioObjects)
-				{
-					UnityTuioManager.Instance.EventProcessor.ObjectAdded -= OnObjectAdded;
-					UnityTuioManager.Instance.EventProcessor.ObjectUpdated -= OnObjectUpdated;
-					UnityTuioManager.Instance.EventProcessor.ObjectRemoved -= OnObjectRemoved;
-				}
-				if(_recordTuioBlobs)
-				{
-					UnityTuioManager.Instance.EventProcessor.BlobAdded -= OnBlobAdded;
-					UnityTuioManager.Instance.EventProcessor.BlobUpdated -= OnBlobUpdated;
-					UnityTuioManager.Instance.EventProcessor.BlobRemoved -= OnBlobRemoved;
-				}
-			}
-			else
-			{
-				UnityEngine.Debug.LogWarning("Couldn't stop recording, UnityTuioManager was not found");
-			}
-		}
+            if (_recordTuioCursors)
+            {
+                UnityTuioEventProcessor.CursorAdded -= OnCursorAdded;
+                UnityTuioEventProcessor.CursorUpdated -= OnCursorUpdated;
+                UnityTuioEventProcessor.CursorRemoved -= OnCursorRemoved;
+            }
+            if (_recordTuioObjects)
+            {
+                UnityTuioEventProcessor.ObjectAdded -= OnObjectAdded;
+                UnityTuioEventProcessor.ObjectUpdated -= OnObjectUpdated;
+                UnityTuioEventProcessor.ObjectRemoved -= OnObjectRemoved;
+            }
+            if (_recordTuioBlobs)
+            {
+                UnityTuioEventProcessor.BlobAdded -= OnBlobAdded;
+                UnityTuioEventProcessor.BlobUpdated -= OnBlobUpdated;
+                UnityTuioEventProcessor.BlobRemoved -= OnBlobRemoved;
+            }
+        }
 		#endregion
 
 		#region public query methods

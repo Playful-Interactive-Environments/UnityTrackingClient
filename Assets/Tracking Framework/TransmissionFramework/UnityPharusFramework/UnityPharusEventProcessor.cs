@@ -20,9 +20,9 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework
         #endregion
 
         #region event handlers
-        public event EventHandler<PharusEventTrackArgs> TrackAdded;
-        public event EventHandler<PharusEventTrackArgs> TrackUpdated;
-        public event EventHandler<PharusEventTrackArgs> TrackRemoved;
+        public static event EventHandler<PharusEventTrackArgs> TrackAdded;
+        public static event EventHandler<PharusEventTrackArgs> TrackUpdated;
+        public static event EventHandler<PharusEventTrackArgs> TrackRemoved;
         #endregion
 
         private UnityPharusListener m_listener;

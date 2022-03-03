@@ -1,3 +1,4 @@
+using Assets.Tracking_Framework.Interfaces;
 using System;
 using UnityEngine;
 
@@ -5,32 +6,32 @@ namespace Assets.Tracking_Framework.TransmissionFramework
 {
     public static class TrackingAdapter
     {
-        private const string NOT_READY = "TrackingManager not ready yet!";
+        private const string NOT_READY = "Tracking Service not ready yet!";
 
-        private static ITrackingManager _trackingManager;
+        private static ITrackingService _trackingService;
 
         public static int TrackingInterpolationX
         {
             get
             {
-                if (_trackingManager == null)
+                if (_trackingService == null)
                 {
                     Console.WriteLine(NOT_READY);
                     return -1;
                 }
-                return _trackingManager.TrackingInterpolationX;
+                return _trackingService.TrackingInterpolationX;
             }
         }
         public static int TrackingInterpolationY
         {
             get
             {
-                if (_trackingManager == null)
+                if (_trackingService == null)
                 {
                     Console.WriteLine(NOT_READY);
                     return -1;
                 }
-                return _trackingManager.TrackingInterpolationY;
+                return _trackingService.TrackingInterpolationY;
             }
         }
 
@@ -38,51 +39,51 @@ namespace Assets.Tracking_Framework.TransmissionFramework
         {
             get
             {
-                if (_trackingManager == null)
+                if (_trackingService == null)
                 {
                     Console.WriteLine(NOT_READY);
                     return -1f;
                 }
-                return _trackingManager.TrackingStageX;
+                return _trackingService.TrackingStageX;
             }
         }
         public static float TrackingStageY
         {
             get
             {
-                if (_trackingManager == null)
+                if (_trackingService == null)
                 {
                     Console.WriteLine(NOT_READY);
                     return -1f;
                 }
-                return _trackingManager.TrackingStageY;
+                return _trackingService.TrackingStageY;
             }
         }
 
         #region public methods
-        public static void InjectTrackingManager(ITrackingManager manager)
+        public static void InjectTrackingManager(ITrackingService service)
         {
-            if (manager.Equals(_trackingManager))
+            if (service.Equals(_trackingService))
             {
-                Console.WriteLine(string.Format("Tracking Manager of Type {0} has already been registered. Are you sure you know What you are doing?", _trackingManager.GetType()));
+                Console.WriteLine(string.Format("Tracking Manager of Type {0} has already been registered. Are you sure you know What you are doing?", _trackingService.GetType()));
             }
 
-            if (_trackingManager != null)
+            if (_trackingService != null)
             {
-                Console.WriteLine(string.Format("Overriding registered {0} with {1}. This can result in weird behavior", _trackingManager.GetType(), manager.GetType()));
+                Console.WriteLine(string.Format("Overriding registered {0} with {1}. This can result in weird behavior", _trackingService.GetType(), service.GetType()));
             }
 
-            _trackingManager = manager;
+            _trackingService = service;
         }
 
         public static Vector2 GetScreenPositionFromRelativePosition(float x, float y)
         {
-            if (_trackingManager == null)
+            if (_trackingService == null)
             {
                 Console.WriteLine(NOT_READY);
                 return Vector2.zero;
             }
-            return _trackingManager.GetScreenPositionFromRelativePosition(x, y);
+            return _trackingService.GetScreenPositionFromRelativePosition(x, y);
         }
         #endregion
     }

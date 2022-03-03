@@ -1,12 +1,13 @@
+using Assets.Tracking_Framework.Player;
 using Assets.Tracking_Framework.TransmissionFramework;
 using Assets.Tracking_Framework.TransmissionFramework.TuioTransmission.TUIO;
 using Assets.Tracking_Framework.TransmissionFramework.UnityTuioFramwork;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Tracking_Framework
+namespace Assets.Tracking_Framework.Services
 {
-    abstract public class ATuioPlayerManager : MonoBehaviour
+    abstract public class TuioPlayerService : MonoBehaviour
     {
         protected List<ATrackingEntity> _playerList;
         [SerializeField] private GameObject _playerPrefab;
@@ -27,41 +28,28 @@ namespace Assets.Tracking_Framework
 
         void OnEnable()
         {
-            if(UnityTuioManager.Instance != null)
-            {
-                if(UnityTuioManager.Instance.EventProcessor == null)
-                {
-                    UnityTuioManager.Instance.OnTrackingInitialized += SubscribeTrackingEvents;
-                }
-                else
-                {
-                    SubscribeTrackingEvents(this, null);
-                }
-            }
+            SubscribeTrackingEvents(this, null);
         }
 	
         void OnDisable()
         {
-            if(UnityTuioManager.Instance != null)
+            if (_subscribeTuioCursors)
             {
-                if(_subscribeTuioCursors)
-                {
-                    UnityTuioManager.Instance.EventProcessor.CursorAdded -= OnCursorAdded;
-                    UnityTuioManager.Instance.EventProcessor.CursorUpdated -= OnCursorUpdated;
-                    UnityTuioManager.Instance.EventProcessor.CursorRemoved -= OnCursorRemoved;
-                }
-                if(_subscribeTuioObjects)
-                {
-                    UnityTuioManager.Instance.EventProcessor.ObjectAdded -= OnObjectAdded;
-                    UnityTuioManager.Instance.EventProcessor.ObjectUpdated -= OnObjectUpdated;
-                    UnityTuioManager.Instance.EventProcessor.ObjectRemoved -= OnObjectRemoved;
-                }
-                if(_subscribeTuioBlobs)
-                {
-                    UnityTuioManager.Instance.EventProcessor.BlobAdded -= OnBlobAdded;
-                    UnityTuioManager.Instance.EventProcessor.BlobUpdated -= OnBlobUpdated;
-                    UnityTuioManager.Instance.EventProcessor.BlobRemoved -= OnBlobRemoved;
-                }
+                UnityTuioEventProcessor.CursorAdded -= OnCursorAdded;
+                UnityTuioEventProcessor.CursorUpdated -= OnCursorUpdated;
+                UnityTuioEventProcessor.CursorRemoved -= OnCursorRemoved;
+            }
+            if (_subscribeTuioObjects)
+            {
+                UnityTuioEventProcessor.ObjectAdded -= OnObjectAdded;
+                UnityTuioEventProcessor.ObjectUpdated -= OnObjectUpdated;
+                UnityTuioEventProcessor.ObjectRemoved -= OnObjectRemoved;
+            }
+            if (_subscribeTuioBlobs)
+            {
+                UnityTuioEventProcessor.BlobAdded -= OnBlobAdded;
+                UnityTuioEventProcessor.BlobUpdated -= OnBlobUpdated;
+                UnityTuioEventProcessor.BlobRemoved -= OnBlobRemoved;
             }
         }
 
@@ -70,21 +58,21 @@ namespace Assets.Tracking_Framework
         {
             if(_subscribeTuioCursors)
             {
-                UnityTuioManager.Instance.EventProcessor.CursorAdded += OnCursorAdded;
-                UnityTuioManager.Instance.EventProcessor.CursorUpdated += OnCursorUpdated;
-                UnityTuioManager.Instance.EventProcessor.CursorRemoved += OnCursorRemoved;
+                UnityTuioEventProcessor.CursorAdded += OnCursorAdded;
+                UnityTuioEventProcessor.CursorUpdated += OnCursorUpdated;
+                UnityTuioEventProcessor.CursorRemoved += OnCursorRemoved;
             }
             if(_subscribeTuioObjects)
             {
-                UnityTuioManager.Instance.EventProcessor.ObjectAdded += OnObjectAdded;
-                UnityTuioManager.Instance.EventProcessor.ObjectUpdated += OnObjectUpdated;
-                UnityTuioManager.Instance.EventProcessor.ObjectRemoved += OnObjectRemoved;
+                UnityTuioEventProcessor.ObjectAdded += OnObjectAdded;
+                UnityTuioEventProcessor.ObjectUpdated += OnObjectUpdated;
+                UnityTuioEventProcessor.ObjectRemoved += OnObjectRemoved;
             }
             if(_subscribeTuioBlobs)
             {
-                UnityTuioManager.Instance.EventProcessor.BlobAdded += OnBlobAdded;
-                UnityTuioManager.Instance.EventProcessor.BlobUpdated += OnBlobUpdated;
-                UnityTuioManager.Instance.EventProcessor.BlobRemoved += OnBlobRemoved;
+                UnityTuioEventProcessor.BlobAdded += OnBlobAdded;
+                UnityTuioEventProcessor.BlobUpdated += OnBlobUpdated;
+                UnityTuioEventProcessor.BlobRemoved += OnBlobRemoved;
             }
         }
         #endregion
@@ -133,7 +121,7 @@ namespace Assets.Tracking_Framework
         #region player management
         public virtual void AddPlayer (TuioContainer theTuioContainer)
         {
-//		Vector2 position = UnityTuioManager.GetScreenPositionFromRelativePosition (theTuioContainer.Position);
+//		Vector2 position = TuioTrackingService.GetScreenPositionFromRelativePosition (theTuioContainer.Position);
             Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(theTuioContainer.Position.X, theTuioContainer.Position.Y);
 
             ATrackingEntity aPlayer = (GameObject.Instantiate(_playerPrefab, new Vector3(position.x,position.y,0), Quaternion.identity) as GameObject).GetComponent<ATrackingEntity>();
@@ -151,7 +139,7 @@ namespace Assets.Tracking_Framework
             {
                 if(player.TrackID.Equals(theTuioContainer.SessionID))
                 {
-//				Vector2 position = UnityTuioManager.GetScreenPositionFromRelativePosition (theTuioContainer.Position);
+//				Vector2 position = TuioTrackingService.GetScreenPositionFromRelativePosition (theTuioContainer.Position);
                     Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(theTuioContainer.Position.X, theTuioContainer.Position.Y);
                     player.SetPosition(position);
                     player.RelativePosition = new Vector2(theTuioContainer.Position.X, theTuioContainer.Position.Y);

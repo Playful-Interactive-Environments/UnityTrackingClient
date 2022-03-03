@@ -1,8 +1,10 @@
 ﻿using Assets.Tracking_Framework;
+using Assets.Tracking_Framework.Managers;
+using Assets.Tracking_Framework.Services;
 
 namespace Assets.Tracking_Example.Scripts
 {
-    public class TestPharusPlayerManager : APharusPlayerManager
+    public class TestPharusPlayerService : PharusPlayerService
     {
 
 //	void Start()

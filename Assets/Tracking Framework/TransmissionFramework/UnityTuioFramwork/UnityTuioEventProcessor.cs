@@ -36,17 +36,17 @@ namespace Assets.Tracking_Framework.TransmissionFramework.UnityTuioFramwork
         #endregion
 
         #region event handlers
-        public event EventHandler<TuioEventObjectArgs> ObjectAdded;
-        public event EventHandler<TuioEventObjectArgs> ObjectUpdated;
-        public event EventHandler<TuioEventObjectArgs> ObjectRemoved;
+        public static event EventHandler<TuioEventObjectArgs> ObjectAdded;
+        public static event EventHandler<TuioEventObjectArgs> ObjectUpdated;
+        public static event EventHandler<TuioEventObjectArgs> ObjectRemoved;
 
-        public event EventHandler<TuioEventCursorArgs> CursorAdded;
-        public event EventHandler<TuioEventCursorArgs> CursorUpdated;
-        public event EventHandler<TuioEventCursorArgs> CursorRemoved;
+        public static event EventHandler<TuioEventCursorArgs> CursorAdded;
+        public static event EventHandler<TuioEventCursorArgs> CursorUpdated;
+        public static event EventHandler<TuioEventCursorArgs> CursorRemoved;
 
-        public event EventHandler<TuioEventBlobArgs> BlobAdded;
-        public event EventHandler<TuioEventBlobArgs> BlobUpdated;
-        public event EventHandler<TuioEventBlobArgs> BlobRemoved;
+        public static event EventHandler<TuioEventBlobArgs> BlobAdded;
+        public static event EventHandler<TuioEventBlobArgs> BlobUpdated;
+        public static event EventHandler<TuioEventBlobArgs> BlobRemoved;
         #endregion
 
         private UnityTuioListener m_listener;

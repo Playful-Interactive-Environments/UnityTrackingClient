@@ -1,12 +1,13 @@
-﻿using Assets.Tracking_Framework.TransmissionFramework;
+﻿using Assets.Tracking_Framework.Player;
+using Assets.Tracking_Framework.TransmissionFramework;
 using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
 using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Tracking_Framework
+namespace Assets.Tracking_Framework.Services
 {
-    abstract public class APharusPlayerManager : MonoBehaviour
+    abstract public class PharusPlayerService : MonoBehaviour
     {
         protected List<ATrackingEntity> _playerList;
         public GameObject _playerPrefab;
@@ -24,36 +25,22 @@ namespace Assets.Tracking_Framework
 	
         void OnEnable()
         {
-            if(UnityPharusManager.Instance != null)
-            {
-                if(UnityPharusManager.Instance.EventProcessor == null)
-                {
-                    UnityPharusManager.Instance.OnTrackingInitialized += SubscribeTrackingEvents;
-                }
-                else
-                {
-                    SubscribeTrackingEvents(this, null);
-                }
-            }
+            SubscribeTrackingEvents(this, null);
         }
 	
         void OnDisable()
         {
-            if(UnityPharusManager.Instance != null)
-            {
-                UnityPharusManager.Instance.EventProcessor.TrackAdded -= OnTrackAdded;
-                UnityPharusManager.Instance.EventProcessor.TrackUpdated -= OnTrackUpdated;
-                UnityPharusManager.Instance.EventProcessor.TrackRemoved -= OnTrackRemoved;
-                UnityPharusManager.Instance.OnTrackingInitialized -= SubscribeTrackingEvents;
-            }
+            UnityPharusEventProcessor.TrackAdded -= OnTrackAdded;
+            UnityPharusEventProcessor.TrackUpdated -= OnTrackUpdated;
+            UnityPharusEventProcessor.TrackRemoved -= OnTrackRemoved;
         }
 
         #region private methods
         private void SubscribeTrackingEvents (object theSender, System.EventArgs e)
         {
-            UnityPharusManager.Instance.EventProcessor.TrackAdded += OnTrackAdded;
-            UnityPharusManager.Instance.EventProcessor.TrackUpdated += OnTrackUpdated;
-            UnityPharusManager.Instance.EventProcessor.TrackRemoved += OnTrackRemoved;
+            UnityPharusEventProcessor.TrackAdded += OnTrackAdded;
+            UnityPharusEventProcessor.TrackUpdated += OnTrackUpdated;
+            UnityPharusEventProcessor.TrackRemoved += OnTrackRemoved;
         }
         #endregion
 	
@@ -75,7 +62,7 @@ namespace Assets.Tracking_Framework
         #region player management
         public virtual void AddPlayer (TrackRecord trackRecord)
         {
-//		Vector2 position = UnityPharusManager.GetScreenPositionFromRelativePosition(trackRecord.relPos);
+//		Vector2 position = PharusTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos);
             Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y);
             ATrackingEntity aPlayer = (GameObject.Instantiate(_playerPrefab, new Vector3(position.x,position.y,0), Quaternion.identity) as GameObject).GetComponent<ATrackingEntity>();
             aPlayer.TrackID = trackRecord.trackID;
@@ -106,7 +93,7 @@ namespace Assets.Tracking_Framework
                     // use AddToVector2List() instead of ToVector2List() as it is more performant
                     aPlayer.Echoes.Clear ();
                     trackRecord.echoes.AddToVector2List (aPlayer.Echoes);
-                    aPlayer.SetPosition(UnityPharusManager.GetScreenPositionFromRelativePosition(trackRecord.relPos));
+                    //aPlayer.SetPosition(PharusTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos));
                     aPlayer.SetPosition(TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y));
                     return;
                 }

@@ -1,4 +1,5 @@
-﻿using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
+﻿using Assets.Tracking_Framework.Services;
+using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
 using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using System.Collections.Generic;
 using System.Data;
@@ -121,31 +122,17 @@ namespace Assets.Tracking_Framework.TrackingEvaluation.Pharus
 		{
 			_recordTable = GetNewTable();
 
-			if(UnityPharusManager.Instance != null)
-			{
-				UnityPharusManager.Instance.EventProcessor.TrackAdded += OnTrackAdded;
-				UnityPharusManager.Instance.EventProcessor.TrackUpdated += OnTrackUpdated;
-				UnityPharusManager.Instance.EventProcessor.TrackRemoved += OnTrackRemoved;
-			}
-			else
-			{
-				UnityEngine.Debug.LogWarning("Couldn't start recording, UnityPharusManager was not found");
-			}
-		}
+            UnityPharusEventProcessor.TrackAdded += OnTrackAdded;
+            UnityPharusEventProcessor.TrackUpdated += OnTrackUpdated;
+            UnityPharusEventProcessor.TrackRemoved += OnTrackRemoved;
+        }
 
 		public void StopRecording()
 		{
-			if(!ReferenceEquals(UnityPharusManager.Instance,null))
-			{
-				UnityPharusManager.Instance.EventProcessor.TrackAdded -= OnTrackAdded;
-				UnityPharusManager.Instance.EventProcessor.TrackUpdated -= OnTrackUpdated;
-				UnityPharusManager.Instance.EventProcessor.TrackRemoved -= OnTrackRemoved;
-			}
-			else
-			{
-				UnityEngine.Debug.LogWarning("Couldn't stop recording, UnityPharusManager was not found");
-			}
-		}
+            UnityPharusEventProcessor.TrackAdded -= OnTrackAdded;
+            UnityPharusEventProcessor.TrackUpdated -= OnTrackUpdated;
+            UnityPharusEventProcessor.TrackRemoved -= OnTrackRemoved;
+        }
 		#endregion
 
 		#region public query methods
