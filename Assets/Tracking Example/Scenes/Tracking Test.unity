@@ -537,7 +537,7 @@ GameObject:
   - component: {fileID: 1549387713}
   - component: {fileID: 1549387714}
   m_Layer: 0
-  m_Name: TUIO
+  m_Name: TrackingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

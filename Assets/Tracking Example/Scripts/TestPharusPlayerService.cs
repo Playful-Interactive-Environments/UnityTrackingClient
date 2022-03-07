@@ -14,7 +14,7 @@ namespace Assets.Tracking_Example.Scripts
 //
 //	private void Test()
 //	{
-//		Debug.Log (UnityTracking.TrackingAdapter.TrackingStageX);
+//		Debug.Log (UnityTracking.TrackingAdapter.StageSizeX);
 //	}
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Assets.Tracking_Framework.Interfaces;
 using Assets.Tracking_Framework.Services;
+using Assets.Tracking_Framework.TransmissionFramework;
 using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using System;
 using System.Collections;
@@ -16,10 +17,10 @@ namespace Assets.Tracking_Framework.Managers
     {
         private ITrackingService tuioService;
         private ITrackingService tracklinkService;
-        private bool tuioEnabled;
-        private bool tracklinkEnabled;
         private TrackingXMLConfig config;
         private static TrackingManager instance;
+        private TrackingSettings settings = new TrackingSettings();
+
         //public GameObject canvasControl;
         //public TextMeshProUGUI trackingType;
         //public TextMeshProUGUI protocolStatus;
@@ -62,28 +63,38 @@ namespace Assets.Tracking_Framework.Managers
                 }
             }
 
+            StartCoroutine(InitializeServices());
+        }
+
+        private IEnumerator InitializeServices()
+        {
+            // Wait until config is loaded
+            yield return StartCoroutine(nameof(LoadConfig));
+
+            // Check service settings
+            if (this.config != null)
+            {
+                this.settings.Initialize(this.config);
+            }
+            else
+            {
+                Debug.LogError($"Tracking config null.");
+            }
+
             // Create services
             this.tuioService = new TuioTrackingService();
             this.tracklinkService = new PharusTrackingService();
 
-            StartCoroutine(TryLoadXml());
-        }
+            // Initialize services
+            if (this.settings.TuioEnabled)
+            {
+                tuioService.Initialize(this.settings);
+            }
 
-        private void InitializeServices()
-        {
-            tuioService.Initialize(this.config);
-            tracklinkService.Initialize(this.config);
-        }
-
-        private void Start()
-        {
-
-
-        }
-
-        private void OnDestroy()
-        {
-
+            if (this.settings.TracklinkEnabled)
+            {
+                tracklinkService.Initialize(this.settings);
+            }
         }
 
         public void Reconnect()
@@ -98,9 +109,8 @@ namespace Assets.Tracking_Framework.Managers
             tracklinkService.Update();
         }
 
-        private IEnumerator TryLoadXml()
+        private IEnumerator LoadConfig()
         {
-
             string aPathToConfigXML = Path.Combine(Application.streamingAssetsPath, "trackingConfig.xml");
             if (File.Exists(aPathToConfigXML))
             {
@@ -111,7 +121,6 @@ namespace Assets.Tracking_Framework.Managers
                 {
                     Debug.Log("no errors occured during config file load");
                     config = TrackingXMLConfig.Load(aPathToConfigXML);
-                    this.InitializeServices();
                 }
             }
             else
@@ -154,15 +163,15 @@ namespace Assets.Tracking_Framework.Managers
         //    }
         //    if (protocolStatus != null)
         //    {
-        //        protocolStatus.text = string.Format("Protocol: UDP port:{0}", m_tuioSettings.UDP_Port);
+        //        protocolStatus.text = string.Format("TracklinkProtocol: UDP port:{0}", settings.TracklinkUdpPort);
         //    }
         //    if (interpolationStatus != null)
         //    {
-        //        interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", m_tuioSettings.TrackingInterpolationX, m_tuioSettings.TrackingInterpolationY);
+        //        interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", settings.TrackingResolutionX, settings.TrackingResolutionY);
         //    }
         //    if (stageStatus != null)
         //    {
-        //        stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", m_tuioSettings.TrackingStageX, m_tuioSettings.TrackingStageY);
+        //        stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", settings.StageSizeX, settings.StageSizeY);
         //    }
         //}
 
@@ -174,17 +183,17 @@ namespace Assets.Tracking_Framework.Managers
         //    }
         //    if (protocolStatus != null)
         //    {
-        //        string ipAddress = m_pharusSettings.Protocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.UDP_Multicast_IP_Address : m_pharusSettings.TCP_IP_Address;
-        //        string port = m_pharusSettings.Protocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.UDP_Port.ToString() : m_pharusSettings.TCP_Port.ToString();
-        //        protocolStatus.text = string.Format("Protocol: {0} {1} : {2}", m_pharusSettings.Protocol, ipAddress, port);
+        //        string ipAddress = m_pharusSettings.TracklinkProtocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.TracklinkMulticastIp : m_pharusSettings.TracklinkTcpIp;
+        //        string port = m_pharusSettings.TracklinkProtocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.TracklinkUdpPort.ToString() : m_pharusSettings.TracklinkTcpPort.ToString();
+        //        protocolStatus.text = string.Format("TracklinkProtocol: {0} {1} : {2}", m_pharusSettings.TracklinkProtocol, ipAddress, port);
         //    }
         //    if (interpolationStatus != null)
         //    {
-        //        interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", m_pharusSettings.TrackingInterpolationX, m_pharusSettings.TrackingInterpolationY);
+        //        interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", m_pharusSettings.TrackingResolutionX, m_pharusSettings.TrackingResolutionY);
         //    }
         //    if (stageStatus != null)
         //    {
-        //        stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", m_pharusSettings.TrackingStageX, m_pharusSettings.TrackingStageY);
+        //        stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", m_pharusSettings.StageSizeX, m_pharusSettings.StageSizeY);
         //    }
         //}
 
