@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Assets.Tracking_Framework.TransmissionFramework.PharusTransmission
+namespace Assets.Tracking_Framework.TransmissionFramework.TracklinkTransmission
 {
     /// <summary>
     /// Record of a tracking point

@@ -1,13 +1,13 @@
 ﻿using Assets.Tracking_Framework.Player;
 using Assets.Tracking_Framework.TransmissionFramework;
-using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
+using Assets.Tracking_Framework.TransmissionFramework.TracklinkTransmission;
 using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Tracking_Framework.Services
 {
-    abstract public class PharusPlayerService : MonoBehaviour
+    abstract public class TracklinkPlayerService : MonoBehaviour
     {
         protected List<ATrackingEntity> _playerList;
         public GameObject _playerPrefab;
@@ -62,7 +62,7 @@ namespace Assets.Tracking_Framework.Services
         #region player management
         public virtual void AddPlayer (TrackRecord trackRecord)
         {
-//		Vector2 position = PharusTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos);
+//		Vector2 position = TracklinkTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos);
             Vector2 position = TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y);
             ATrackingEntity aPlayer = (GameObject.Instantiate(_playerPrefab, new Vector3(position.x,position.y,0), Quaternion.identity) as GameObject).GetComponent<ATrackingEntity>();
             aPlayer.TrackID = trackRecord.trackID;
@@ -93,7 +93,7 @@ namespace Assets.Tracking_Framework.Services
                     // use AddToVector2List() instead of ToVector2List() as it is more performant
                     aPlayer.Echoes.Clear ();
                     trackRecord.echoes.AddToVector2List (aPlayer.Echoes);
-                    //aPlayer.SetPosition(PharusTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos));
+                    //aPlayer.SetPosition(TracklinkTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos));
                     aPlayer.SetPosition(TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y));
                     return;
                 }

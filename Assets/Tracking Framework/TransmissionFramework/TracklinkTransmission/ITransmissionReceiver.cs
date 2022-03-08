@@ -1,4 +1,4 @@
-﻿namespace Assets.Tracking_Framework.TransmissionFramework.PharusTransmission
+﻿namespace Assets.Tracking_Framework.TransmissionFramework.TracklinkTransmission
 {
     /// <summary>
     /// Interface for everything that wants to receive track updates from TransmissionClient

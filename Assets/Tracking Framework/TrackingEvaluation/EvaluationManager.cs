@@ -126,7 +126,7 @@ namespace Assets.Tracking_Framework.TrackingEvaluation
 				switch(Application.loadedLevelName)
 				{
 					default:
-						_recorder = new PharusRecorder(5);
+						_recorder = new TracklinkRecorder(5);
 						break;
 				}
 			}

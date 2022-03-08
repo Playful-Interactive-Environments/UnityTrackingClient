@@ -1,4 +1,4 @@
-﻿using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
+﻿using Assets.Tracking_Framework.TransmissionFramework.TracklinkTransmission;
 using System;
 
 namespace Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework

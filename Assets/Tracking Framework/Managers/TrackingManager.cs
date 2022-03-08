@@ -13,20 +13,28 @@ using UnityEngine.Networking;
 
 namespace Assets.Tracking_Framework.Managers
 {
+    /// <summary>
+    /// The tracking manager, used for initializing and managing different tracking services.
+    /// </summary>
     public class TrackingManager : MonoBehaviour
     {
+        /// <summary>
+        /// Currently available tracking services.
+        /// </summary>
         private ITrackingService tuioService;
         private ITrackingService tracklinkService;
+
+        /// <summary>
+        /// The external configuration xml, located in the Streaming Assets folder
+        /// </summary>
         private TrackingXMLConfig config;
-        private static TrackingManager instance;
+
+        /// <summary>
+        /// The tracking settings, loaded from the xml config file.
+        /// </summary>
         private TrackingSettings settings = new TrackingSettings();
 
-        //public GameObject canvasControl;
-        //public TextMeshProUGUI trackingType;
-        //public TextMeshProUGUI protocolStatus;
-        //public TextMeshProUGUI interpolationStatus;
-        //public TextMeshProUGUI stageStatus;
-
+        private static TrackingManager instance;
         public static TrackingManager Instance
         {
             get
@@ -36,7 +44,7 @@ namespace Assets.Tracking_Framework.Managers
                     instance = (TrackingManager)FindObjectOfType(typeof(TrackingManager));
                     if (instance == null)
                     {
-                        // Debug.Log (string.Format ("No instance of {0} available.", typeof(TuioTrackingService)));
+                        Debug.Log ($"No instance of {typeof(TuioTrackingService)} available.");
                     }
                     else
                     {
@@ -46,6 +54,8 @@ namespace Assets.Tracking_Framework.Managers
                 return instance;
             }
         }
+
+        public TrackingSettings Settings => settings;
 
         private async void Awake()
         {
@@ -66,6 +76,26 @@ namespace Assets.Tracking_Framework.Managers
             StartCoroutine(InitializeServices());
         }
 
+        private void Update()
+        {
+            this.HandleKeyboardInputs();
+            this.tuioService.Update();
+            this.tracklinkService.Update();
+        }
+
+        /// <summary>
+        /// Reconnects all tracking services.
+        /// </summary>
+        public void Reconnect()
+        {
+            tuioService.Reconnect(1000);
+            tracklinkService.Reconnect(1000);
+        }
+
+        /// <summary>
+        /// Loads xml configuration and initializes tracking services
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator InitializeServices()
         {
             // Wait until config is loaded
@@ -78,12 +108,12 @@ namespace Assets.Tracking_Framework.Managers
             }
             else
             {
-                Debug.LogError($"Tracking config null.");
+                Debug.LogError($"Tracking config not loaded correctly. Using default settings");
             }
 
             // Create services
             this.tuioService = new TuioTrackingService();
-            this.tracklinkService = new PharusTrackingService();
+            this.tracklinkService = new TracklinkTrackingService();
 
             // Initialize services
             if (this.settings.TuioEnabled)
@@ -97,18 +127,10 @@ namespace Assets.Tracking_Framework.Managers
             }
         }
 
-        public void Reconnect()
-        {
-            tuioService.Reconnect(1000);
-            tracklinkService.Reconnect(1000);
-        }
-
-        private void Update()
-        {
-            tuioService.Update();
-            tracklinkService.Update();
-        }
-
+        /// <summary>
+        /// Loads the configuration xml from the Streaming Assets folder.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator LoadConfig()
         {
             string aPathToConfigXML = Path.Combine(Application.streamingAssetsPath, "trackingConfig.xml");
@@ -129,114 +151,12 @@ namespace Assets.Tracking_Framework.Managers
             }
         }
 
-        //private void Initialize()
-        //{
-        //    for (int i = 0; i < this.config.ConfigNodes.Length; i++)
-        //    {
-        //        string tracklinkConfig;
-        //        string tuioConfig;
-
-        //        switch (this.config.ConfigNodes[i].Name)
-        //        {
-        //            case "tracklink-enabled":
-        //                tracklinkConfig = this.config.ConfigNodes[i].Value;
-        //                break;
-        //            case "tuio-enabled":
-        //                tuioConfig = this.config.ConfigNodes[i].Value;
-        //                break;
-        //        }
-
-        //        bool configTracklinkBool;
-        //        if (tracklinkEnabled != null && Boolean.TryParse(tracklinkEnabled, out configTracklinkBool))
-        //        {
-        //            this.tracklinkEnabled = configTracklinkBool;
-        //            Debug.Log(string.Format("TrackLink XML config: TrackLink enabled: {0}", this.tracklinkEnabled));
-        //        }
-        //    }
-        //}
-        //TODO: Adapt input and GUI
-        //private void UpdateDebugGUI()
-        //{
-        //    if (trackingType != null)
-        //    {
-        //        trackingType.text = "Tracking System: TUIO";
-        //    }
-        //    if (protocolStatus != null)
-        //    {
-        //        protocolStatus.text = string.Format("TracklinkProtocol: UDP port:{0}", settings.TracklinkUdpPort);
-        //    }
-        //    if (interpolationStatus != null)
-        //    {
-        //        interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", settings.TrackingResolutionX, settings.TrackingResolutionY);
-        //    }
-        //    if (stageStatus != null)
-        //    {
-        //        stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", settings.StageSizeX, settings.StageSizeY);
-        //    }
-        //}
-
-        //private void UpdateDebugGUI()
-        //{
-        //    if (trackingType != null)
-        //    {
-        //        trackingType.text = "Tracking System: TrackLink";
-        //    }
-        //    if (protocolStatus != null)
-        //    {
-        //        string ipAddress = m_pharusSettings.TracklinkProtocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.TracklinkMulticastIp : m_pharusSettings.TracklinkTcpIp;
-        //        string port = m_pharusSettings.TracklinkProtocol == PharusSettings.EProtocolType.UDP ? m_pharusSettings.TracklinkUdpPort.ToString() : m_pharusSettings.TracklinkTcpPort.ToString();
-        //        protocolStatus.text = string.Format("TracklinkProtocol: {0} {1} : {2}", m_pharusSettings.TracklinkProtocol, ipAddress, port);
-        //    }
-        //    if (interpolationStatus != null)
-        //    {
-        //        interpolationStatus.text = string.Format("Interpolation: {0}px x {1}px", m_pharusSettings.TrackingResolutionX, m_pharusSettings.TrackingResolutionY);
-        //    }
-        //    if (stageStatus != null)
-        //    {
-        //        stageStatus.text = string.Format("Stage Dimensions: {0}cm x {1}cm", m_pharusSettings.StageSizeX, m_pharusSettings.StageSizeY);
-        //    }
-        //}
-
-        //private IEnumerator LoadConfigXML()
-        //{
-        //    // Debug.Log("Trying to load config file");
-        //    string aPathToConfigXML = Path.Combine(Application.dataPath, "tuioConfig.xml");
-        //    aPathToConfigXML = "file:///" + aPathToConfigXML;
-        //    UnityWebRequest request = UnityWebRequest.Get(aPathToConfigXML);
-        //    // Debug.Log ("start loading file...");
-        //    yield return request.SendWebRequest();
-        //    // Debug.Log ("file loading complete");
-
-        //    if (!request.isNetworkError && !request.isHttpError)
-        //    {
-        //        // Debug.Log ("no errors occured during config file load");
-        //        xmlConfig = UnityTuioXMLConfig.LoadFromText(request.downloadHandler.text);
-        //    }
-        //}
-
-        //private void HandleKeyboardInputs()
-        //{
-        //    if (Input.GetKeyDown(KeyCode.R))
-        //    {
-        //        Reconnect();
-        //    }
-
-        //    if (Input.GetKeyDown(KeyCode.Tab))
-        //    {
-        //        if (canvasControl != null)
-        //        {
-        //            canvasControl.SetActive(true);
-        //            UpdateDebugGUI();
-        //        }
-        //    }
-        //    else if (Input.GetKeyUp(KeyCode.Tab))
-        //    {
-        //        if (canvasControl != null)
-        //        {
-        //            canvasControl.SetActive(false);
-        //            UpdateDebugGUI();
-        //        }
-        //    }
-        //}
+        private void HandleKeyboardInputs()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Reconnect();
+            }
+        }
     }
 }

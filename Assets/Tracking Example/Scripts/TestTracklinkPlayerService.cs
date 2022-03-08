@@ -4,7 +4,7 @@ using Assets.Tracking_Framework.Services;
 
 namespace Assets.Tracking_Example.Scripts
 {
-    public class TestPharusPlayerService : PharusPlayerService
+    public class TestTracklinkPlayerService : TracklinkPlayerService
     {
 
 //	void Start()

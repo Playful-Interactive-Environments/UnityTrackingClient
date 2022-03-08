@@ -1,8 +1,8 @@
 ﻿namespace Assets.Tracking_Framework.Enums
 {
-    public enum ServiceType
+    public enum EProtocolType
     {
-        Tracklink,
-        TUIO
+        TCP,
+        UDP
     }
 }

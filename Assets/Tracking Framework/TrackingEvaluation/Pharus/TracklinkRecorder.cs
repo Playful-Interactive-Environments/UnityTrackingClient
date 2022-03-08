@@ -1,5 +1,5 @@
 ﻿using Assets.Tracking_Framework.Services;
-using Assets.Tracking_Framework.TransmissionFramework.PharusTransmission;
+using Assets.Tracking_Framework.TransmissionFramework.TracklinkTransmission;
 using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using System.Collections.Generic;
 using System.Data;
@@ -9,7 +9,7 @@ namespace Assets.Tracking_Framework.TrackingEvaluation.Pharus
 	/// <summary>
 	/// This class stores received Pharus data in a DataTable. It makes use of a buffer to improve performance.
 	/// </summary>
-	public class PharusRecorder : IRecorder
+	public class TracklinkRecorder : IRecorder
 	{
 		protected const int BUFFER_LENGTH = 4;
 		
@@ -22,7 +22,7 @@ namespace Assets.Tracking_Framework.TrackingEvaluation.Pharus
 		private int _currentSecond;
 
 		#region constructor
-		public PharusRecorder(int theRecordsPerPlayerPerSecond = 5)
+		public TracklinkRecorder(int theRecordsPerPlayerPerSecond = 5)
 		{
 			_recordsPerPlayerPerSecond = theRecordsPerPlayerPerSecond;
 			_recordedPlayersInCurrentSecond = new List<long>();

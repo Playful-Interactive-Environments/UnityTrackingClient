@@ -1,4 +1,5 @@
-﻿using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
+﻿using Assets.Tracking_Framework.Enums;
+using Assets.Tracking_Framework.TransmissionFramework.UnityPharusFramework;
 using Assets.Tracking_Framework.TransmissionFramework.UnityTuioFramwork;
 using System;
 
@@ -9,30 +10,33 @@ namespace Assets.Tracking_Framework.TransmissionFramework
     /// </summary>
     public class TrackingSettings
     {
-        public enum EProtocolType
-        {
-            TCP,
-            UDP
-        }
-
         private bool tracklinkEnabled = true;
         private bool tuioEnabled = true;
 
+        /// <summary>
+        /// Protocol selection for the Tracklink service. TUIO always uses TCP.
+        /// </summary>
         private EProtocolType tracklinkProtocol = EProtocolType.UDP;
         private string tracklinkTcpIp = "127.0.0.1";
         private int tracklinkTcpPort = 44345;
-        private string _tracklinkMulticastIp = "239.1.1.1";
+        private string tracklinkMulticastIp = "239.1.1.1";
+
+        /// <summary>
+        /// Udp port settings for both tracking protocols.
+        /// </summary>
         private int tuioUdpPort = 3333;
-        private int _tracklinkUdpPort = 44345;
+        private int tracklinkUdpPort = 44345;
 
         // the resolution, in unity units
         private int trackingResolutionX = 1920;
         private int trackingResolutionY = 1080;
+
         // the real size of play space in cm
         private float stageSizeX = 1600f;
         private float stageSizeY = 900f;
-        // in milliseconds
-        private int _checkServerReconnectIntervall = 5000;
+
+        // Server reconnect intervall in milliseconds, not set in xml.
+        private int checkServerReconnectIntervall = 5000;
         private TrackingXMLConfig xmlConfig;
 
         public bool TuioEnabled
@@ -69,13 +73,13 @@ namespace Assets.Tracking_Framework.TransmissionFramework
         }
         public string TracklinkMulticastIp
         {
-            get { return this._tracklinkMulticastIp; }
-            set { this._tracklinkMulticastIp = value; }
+            get { return this.tracklinkMulticastIp; }
+            set { this.tracklinkMulticastIp = value; }
         }
         public int TracklinkUdpPort
         {
-            get { return this._tracklinkUdpPort; }
-            set { this._tracklinkUdpPort = value; }
+            get { return this.tracklinkUdpPort; }
+            set { this.tracklinkUdpPort = value; }
         }
         public int TrackingResolutionX
         {
@@ -99,9 +103,13 @@ namespace Assets.Tracking_Framework.TransmissionFramework
         }
         public int CheckServerReconnectIntervall
         {
-            get { return this._checkServerReconnectIntervall; }
+            get { return this.checkServerReconnectIntervall; }
         }
 
+        /// <summary>
+        /// Initializes tracking settings by loading data from an external xml config file.
+        /// </summary>
+        /// <param name="config">The xml config.</param>
         public void Initialize(TrackingXMLConfig config)
         {
             this.xmlConfig = config;
@@ -247,8 +255,8 @@ namespace Assets.Tracking_Framework.TransmissionFramework
                             configTracklinkUdpPort != null && int.TryParse(configTracklinkUdpPort, out configUDPPortInt))
                         {
                             this.tracklinkProtocol = EProtocolType.UDP;
-                            this._tracklinkMulticastIp = configTracklinkUdpMulticastIp;
-                            this._tracklinkUdpPort = configUDPPortInt;
+                            this.tracklinkMulticastIp = configTracklinkUdpMulticastIp;
+                            this.tracklinkUdpPort = configUDPPortInt;
                             Console.WriteLine(string.Format("TrackLink XML config: using UDP: {0}:{1}", configTracklinkUdpMulticastIp, configTracklinkUdpPort));
                         }
                         else

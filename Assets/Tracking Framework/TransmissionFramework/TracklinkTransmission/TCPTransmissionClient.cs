@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Assets.Tracking_Framework.TransmissionFramework.PharusTransmission
+namespace Assets.Tracking_Framework.TransmissionFramework.TracklinkTransmission
 {
     public class TCPTransmissionClient : ITransmissionClient
     {

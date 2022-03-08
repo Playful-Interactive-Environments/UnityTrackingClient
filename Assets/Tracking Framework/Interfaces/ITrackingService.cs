@@ -11,11 +11,9 @@ namespace Assets.Tracking_Framework.Interfaces
         float TrackingStageX { get; }
         float TrackingStageY { get; }
         Vector2 GetScreenPositionFromRelativePosition(float x, float y);
-        void Initialize(TrackingSettings config);
+        void Initialize(TrackingSettings settings);
         void Update();
         void Shutdown();
         void Reconnect(int delay);
-        void SetTrackingInterpolation(int width, int height);
-        void SetTrackingStage(float x, float y);
     }
 }
