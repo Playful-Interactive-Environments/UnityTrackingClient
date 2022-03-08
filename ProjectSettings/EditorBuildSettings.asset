@@ -5,19 +5,28 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
-    path: Assets/Tracking/Pharus/Scenes/PharusBasicTest.unity
-  - enabled: 1
-    path: Assets/Tracking/Pharus/Scenes/PharusRecordingTest.unity
-  - enabled: 1
-    path: Assets/Tracking/Pharus/Scenes/PharusScenePersistence1.unity
-  - enabled: 1
-    path: Assets/Tracking/Pharus/Scenes/PharusScenePersistence2.unity
-  - enabled: 1
-    path: Assets/Tracking/TUIO/Scenes/TuioBasicTest.unity
-  - enabled: 1
-    path: Assets/Tracking/TUIO/Scenes/TuioRecordingTest.unity
-  - enabled: 1
-    path: Assets/Tracking/TUIO/Scenes/TuioScenePersistence1.unity
-  - enabled: 1
-    path: Assets/Tracking/TUIO/Scenes/TuioScenePersistence2.unity
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  m_configObjects: {}

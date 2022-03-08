@@ -1,6 +1,6 @@
-﻿using Assets.Tracking_Framework.Enums;
-using Assets.Tracking_Framework.Managers;
-using Assets.Tracking_Framework.TransmissionFramework;
+﻿using Assets.Pharus_Tracking_Framework;
+using Assets.Pharus_Tracking_Framework.Enums;
+using Assets.Pharus_Tracking_Framework.Managers;
 using TMPro;
 using UnityEngine;
 
