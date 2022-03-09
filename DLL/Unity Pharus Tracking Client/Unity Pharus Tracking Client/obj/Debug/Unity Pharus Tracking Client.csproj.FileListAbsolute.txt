@@ -1,0 +1,6 @@
+E:\Georgi\Projects\UnityTrackingClient\DLL\Unity Pharus Tracking Client\Unity Pharus Tracking Client\bin\Debug\Unity Pharus Tracking Client.dll
+E:\Georgi\Projects\UnityTrackingClient\DLL\Unity Pharus Tracking Client\Unity Pharus Tracking Client\bin\Debug\Unity Pharus Tracking Client.pdb
+E:\Georgi\Projects\UnityTrackingClient\DLL\Unity Pharus Tracking Client\Unity Pharus Tracking Client\obj\Debug\Unity Pharus Tracking Client.csproj.AssemblyReference.cache
+E:\Georgi\Projects\UnityTrackingClient\DLL\Unity Pharus Tracking Client\Unity Pharus Tracking Client\obj\Debug\Unity Pharus Tracking Client.csproj.CoreCompileInputs.cache
+E:\Georgi\Projects\UnityTrackingClient\DLL\Unity Pharus Tracking Client\Unity Pharus Tracking Client\obj\Debug\Unity Pharus Tracking Client.dll
+E:\Georgi\Projects\UnityTrackingClient\DLL\Unity Pharus Tracking Client\Unity Pharus Tracking Client\obj\Debug\Unity Pharus Tracking Client.pdb
