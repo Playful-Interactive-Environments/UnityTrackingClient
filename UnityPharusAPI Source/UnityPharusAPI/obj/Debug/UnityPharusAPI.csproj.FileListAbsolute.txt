@@ -1,0 +1,6 @@
+E:\Georgi\Projects\UnityTrackingClient\UnityPharusAPI Source\UnityPharusAPI\bin\Debug\UnityPharusAPI.dll
+E:\Georgi\Projects\UnityTrackingClient\UnityPharusAPI Source\UnityPharusAPI\bin\Debug\UnityPharusAPI.pdb
+E:\Georgi\Projects\UnityTrackingClient\UnityPharusAPI Source\UnityPharusAPI\obj\Debug\UnityPharusAPI.csproj.AssemblyReference.cache
+E:\Georgi\Projects\UnityTrackingClient\UnityPharusAPI Source\UnityPharusAPI\obj\Debug\UnityPharusAPI.csproj.CoreCompileInputs.cache
+E:\Georgi\Projects\UnityTrackingClient\UnityPharusAPI Source\UnityPharusAPI\obj\Debug\UnityPharusAPI.dll
+E:\Georgi\Projects\UnityTrackingClient\UnityPharusAPI Source\UnityPharusAPI\obj\Debug\UnityPharusAPI.pdb
