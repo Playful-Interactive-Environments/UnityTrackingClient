@@ -1,4 +1,5 @@
 ﻿using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio.TUIO;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -77,6 +78,9 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
             get { return m_eventQueue; }
         }
 
+        private int eventCounter = 0;
+        public static event EventHandler ServiceShutdown;
+
         #region constructors
         public UnityTuioListener()
         {
@@ -142,6 +146,7 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
                 m_client.removeTuioListener(this);
                 if (m_client.isConnected()) m_client.disconnect();
                 m_client = null;
+                ServiceShutdown?.Invoke(this, null);
                 Debug.Log("--- Disconnected TUIO client: port is now free ---");
             }
             else
@@ -158,6 +163,17 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
             Shutdown();
             Debug.Log("--- Trying to reconnect tracking service... ---");
             InitTracking();
+        }
+
+        /// <summary>
+        /// Determines whether this instance has any TUIO data received since last check.
+        /// </summary>
+        /// <returns><c>true</c> if this instance has data received since last check; otherwise, <c>false</c>.</returns>
+        public bool HasDataReceivedSinceLastCheck()
+        {
+            bool aReturn = (eventCounter > 0);
+            eventCounter = 0;
+            return aReturn;
         }
 
         public bool HasTuioContainers()
@@ -184,6 +200,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
         #region TuioListener implementation
         public void addTuioObject(TuioObject tobj)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.ADD_OBJECT, tobj));
@@ -192,6 +210,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void updateTuioObject(TuioObject tobj)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.UPDATE_OBJECT, tobj));
@@ -200,6 +220,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void removeTuioObject(TuioObject tobj)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.REMOVE_OBJECT, tobj));
@@ -208,6 +230,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void addTuioCursor(TuioCursor tcur)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.ADD_CURSOR, tcur));
@@ -216,6 +240,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void updateTuioCursor(TuioCursor tcur)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.UPDATE_CURSOR, tcur));
@@ -224,6 +250,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void removeTuioCursor(TuioCursor tcur)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.REMOVE_CURSOR, tcur));
@@ -232,6 +260,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void addTuioBlob(TuioBlob tblb)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.ADD_BLOB, tblb));
@@ -240,6 +270,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void updateTuioBlob(TuioBlob tblb)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.UPDATE_BLOB, tblb));
@@ -248,6 +280,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio
 
         public void removeTuioBlob(TuioBlob tblb)
         {
+            eventCounter++;
+
             lock (m_lockObj)
             {
                 m_eventQueue.Enqueue(new TuioEvent(ETuioEventType.REMOVE_BLOB, tblb));

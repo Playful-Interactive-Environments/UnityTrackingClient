@@ -1,12 +1,13 @@
 using Assets.Pharus_Tracking_Framework.Player;
 using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio;
 using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio.TUIO;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Pharus_Tracking_Framework.Managers
 {
-    abstract public class TuioPlayerManager : MonoBehaviour
+    abstract public class ATuioPlayerManager : MonoBehaviour
     {
         protected List<ATrackingEntity> _playerList;
         [SerializeField] private GameObject _playerPrefab;
@@ -23,17 +24,29 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             get { return _playerList; }
         }
 
-        void Awake()
+        protected virtual void Awake()
         {
             _playerList = new List<ATrackingEntity>();
         }
 
-        void OnEnable()
+        /// <summary>
+        /// Destroy all spawned objects when service shuts down.
+        /// </summary>
+        protected virtual void UnityTuioListenerOnServiceShutdown(object sender, EventArgs e)
+        {
+            foreach (ATrackingEntity player in _playerList.ToArray())
+            {
+                GameObject.Destroy(player.gameObject);
+                _playerList.Remove(player);
+            }
+        }
+
+        protected virtual void OnEnable()
         {
             SubscribeTrackingEvents(this, null);
         }
-	
-        void OnDisable()
+
+        protected virtual void OnDisable()
         {
             if (_subscribeTuioCursors)
             {
@@ -53,10 +66,11 @@ namespace Assets.Pharus_Tracking_Framework.Managers
                 TuioEventProcessor.BlobUpdated -= OnBlobUpdated;
                 TuioEventProcessor.BlobRemoved -= OnBlobRemoved;
             }
+            UnityTuioListener.ServiceShutdown -= UnityTuioListenerOnServiceShutdown;
         }
 
         #region private methods
-        private void SubscribeTrackingEvents(object theSender, System.EventArgs e)
+        protected virtual void SubscribeTrackingEvents(object theSender, System.EventArgs e)
         {
             if(_subscribeTuioCursors)
             {
@@ -76,9 +90,10 @@ namespace Assets.Pharus_Tracking_Framework.Managers
                 TuioEventProcessor.BlobUpdated += OnBlobUpdated;
                 TuioEventProcessor.BlobRemoved += OnBlobRemoved;
             }
+            UnityTuioListener.ServiceShutdown += UnityTuioListenerOnServiceShutdown;
         }
         #endregion
-	
+
         #region tuio event handlers
         void OnCursorAdded (object sender, TuioEventProcessor.TuioEventCursorArgs e)
         {

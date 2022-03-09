@@ -11,7 +11,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
     /// <summary>
     /// The tracking manager, used for initializing and managing different tracking services.
     /// </summary>
-    public class TrackingManager : MonoBehaviour
+    public abstract class ATrackingManager : MonoBehaviour
     {
         /// <summary>
         /// Currently available tracking services.
@@ -29,17 +29,17 @@ namespace Assets.Pharus_Tracking_Framework.Managers
         /// </summary>
         private TrackingSettings settings = new TrackingSettings();
 
-        private static TrackingManager instance;
-        public static TrackingManager Instance
+        private static ATrackingManager instance;
+        public static ATrackingManager Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = (TrackingManager)FindObjectOfType(typeof(TrackingManager));
+                    instance = (ATrackingManager)FindObjectOfType(typeof(ATrackingManager));
                     if (instance == null)
                     {
-                        Debug.Log ($"No instance of {typeof(TuioTrackingService)} available.");
+                        Debug.Log($"No instance of {typeof(TuioTrackingService)} available.");
                     }
                     else
                     {
@@ -52,7 +52,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
 
         public TrackingSettings Settings => settings;
 
-        private async void Awake()
+        protected virtual void Awake()
         {
             if (instance == null)
             {
@@ -71,7 +71,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             StartCoroutine(InitializeServices());
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             this.HandleKeyboardInputs();
             this.tuioService.Update();
@@ -81,7 +81,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
         /// <summary>
         /// Reconnects all tracking services.
         /// </summary>
-        public void Reconnect()
+        public virtual void Reconnect()
         {
             tuioService.Reconnect(1000);
             tracklinkService.Reconnect(1000);
@@ -91,7 +91,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
         /// Loads xml configuration and initializes tracking services
         /// </summary>
         /// <returns></returns>
-        private IEnumerator InitializeServices()
+        protected virtual IEnumerator InitializeServices()
         {
             // Wait until config is loaded
             yield return StartCoroutine(nameof(LoadConfig));
@@ -110,7 +110,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             this.tuioService = new TuioTrackingService();
             this.tracklinkService = new TracklinkTrackingService();
 
-            // Initialize services
+            // Initialize both services
             if (this.settings.TuioEnabled)
             {
                 tuioService.Initialize(this.settings);
@@ -120,13 +120,24 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             {
                 tracklinkService.Initialize(this.settings);
             }
+
+            // If both tracking services are active, automatically prefer Tracklink data to avoid duplicate players
+            while (this.settings.TracklinkEnabled && this.settings.TuioEnabled)
+            {
+                yield return new WaitForSeconds(1f);
+                if (tracklinkService.IsActivelyReceiving && tuioService.IsActivelyReceiving)
+                {
+                    Debug.Log($"There's more than one tracking service active. Automatically defaulting to Tracklink, no TUIO data will be received.");
+                    tuioService.Shutdown();
+                }
+            }
         }
 
         /// <summary>
         /// Loads the configuration xml from the Streaming Assets folder.
         /// </summary>
         /// <returns></returns>
-        private IEnumerator LoadConfig()
+        protected virtual IEnumerator LoadConfig()
         {
             string aPathToConfigXML = Path.Combine(Application.streamingAssetsPath, "trackingConfig.xml");
             if (File.Exists(aPathToConfigXML))
@@ -146,7 +157,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             }
         }
 
-        private void HandleKeyboardInputs()
+        protected virtual void HandleKeyboardInputs()
         {
             if (Input.GetKeyDown(KeyCode.R))
             {

@@ -1,7 +1,7 @@
 <TrackingXMLConfig>
   <ConfigNodes>
     <ConfigNode name="tuio-enabled">
-      <Value>false</Value>
+      <Value>true</Value>
     </ConfigNode>
     <ConfigNode name="tracklink-enabled">
       <Value>true</Value>

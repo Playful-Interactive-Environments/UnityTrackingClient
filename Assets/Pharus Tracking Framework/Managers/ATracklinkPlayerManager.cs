@@ -1,11 +1,12 @@
 ﻿using Assets.Pharus_Tracking_Framework.Player;
 using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tracklink;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Pharus_Tracking_Framework.Managers
 {
-    abstract public class TracklinkPlayerManager : MonoBehaviour
+    abstract public class ATracklinkPlayerManager : MonoBehaviour
     {
         protected List<ATrackingEntity> _playerList;
         public GameObject _playerPrefab;
@@ -34,6 +35,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             UnityPharusEventProcessor.TrackAdded -= OnTrackAdded;
             UnityPharusEventProcessor.TrackUpdated -= OnTrackUpdated;
             UnityPharusEventProcessor.TrackRemoved -= OnTrackRemoved;
+            UnityPharusListener.ServiceShutdown -= UnityPharusListenerOnServiceShutdown;
         }
 
         #region private methods
@@ -42,7 +44,21 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             UnityPharusEventProcessor.TrackAdded += OnTrackAdded;
             UnityPharusEventProcessor.TrackUpdated += OnTrackUpdated;
             UnityPharusEventProcessor.TrackRemoved += OnTrackRemoved;
+            UnityPharusListener.ServiceShutdown += UnityPharusListenerOnServiceShutdown;
         }
+
+        /// <summary>
+        /// Destroy all spawned objects when service shuts down.
+        /// </summary>
+        private void UnityPharusListenerOnServiceShutdown(object sender, EventArgs e)
+        {
+            foreach (ATrackingEntity player in _playerList.ToArray())
+            {
+                GameObject.Destroy(player.gameObject);
+                _playerList.Remove(player);
+            }
+        }
+
         #endregion
 
         #region tuio event handlers

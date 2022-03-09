@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tracklink
@@ -57,6 +58,8 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tracklink
         {
             get { return m_lockObj; }
         }
+
+        public static event EventHandler ServiceShutdown;
 
         private Queue<PharusEvent> m_eventQueue;
         /// <summary>
@@ -169,6 +172,7 @@ namespace Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tracklink
                 {
                     m_client.Disconnect();
                     m_client.UnregisterTransmissionReceiver(this);
+                    ServiceShutdown?.Invoke(this, null);
                 }
                 m_client = null;
                 Debug.Log(string.Format("--- Disconnected from port: {0} ---", m_port));

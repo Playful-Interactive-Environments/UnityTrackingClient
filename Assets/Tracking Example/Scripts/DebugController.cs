@@ -41,9 +41,9 @@ namespace Assets.Tracking_Example.Scripts
 
         private void UpdateDebugGUI()
         {
-            if (TrackingManager.Instance.Settings != null)
+            if (ATrackingManager.Instance.Settings != null)
             {
-                TrackingSettings settings = TrackingManager.Instance.Settings;
+                TrackingSettings settings = ATrackingManager.Instance.Settings;
 
                 if (trackingType != null)
                 {

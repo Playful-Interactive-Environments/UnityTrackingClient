@@ -16,6 +16,28 @@ namespace Assets.Pharus_Tracking_Framework.Services
         private UnityTuioListener listener;
         private TuioEventProcessor eventProcessor;
 
+        public bool IsActivelyReceiving
+        {
+            get
+            {
+                if (listener != null)
+                {
+                    if (listener.HasDataReceivedSinceLastCheck())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         public int TrackingInterpolationX
         {
             get { return settings.TrackingResolutionX; }

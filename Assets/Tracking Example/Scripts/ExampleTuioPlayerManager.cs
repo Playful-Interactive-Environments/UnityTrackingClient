@@ -3,7 +3,7 @@ using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio.TUIO;
 
 namespace Assets.Tracking_Example.Scripts
 {
-    public class CustomTuioPlayerManager : TuioPlayerManager
+    public class ExampleTuioPlayerManager : ATuioPlayerManager
     {
         public override void AddPlayer(TuioContainer theTuioContainer)
         {

@@ -16,7 +16,7 @@ namespace Assets.Pharus_Tracking_Framework.Services
         private TrackingSettings settings;
         private UnityPharusListener listener;
         private UnityPharusEventProcessor eventProcessor;
-
+        private bool isReceivingData;
         public UnityPharusEventProcessor EventProcessor
         {
             get { return eventProcessor; }
@@ -37,6 +37,27 @@ namespace Assets.Pharus_Tracking_Framework.Services
         public float TrackingStageY
         {
             get { return settings.StageSizeY; }
+        }
+        public bool IsActivelyReceiving
+        {
+            get
+            {
+                if (listener != null)
+                {
+                    if (listener.HasDataReceivedSinceLastCheck())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         /// <summary>

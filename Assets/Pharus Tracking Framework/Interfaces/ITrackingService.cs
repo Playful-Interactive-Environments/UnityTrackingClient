@@ -8,6 +8,8 @@ namespace Assets.Pharus_Tracking_Framework.Interfaces
         int TrackingInterpolationY { get; }
         float TrackingStageX { get; }
         float TrackingStageY { get; }
+
+        bool IsActivelyReceiving { get; }
         Vector2 GetScreenPositionFromRelativePosition(float x, float y);
         void Initialize(TrackingSettings settings);
         void Update();
