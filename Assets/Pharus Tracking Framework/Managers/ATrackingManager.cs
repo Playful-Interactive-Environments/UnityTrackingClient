@@ -74,8 +74,16 @@ namespace Assets.Pharus_Tracking_Framework.Managers
         protected virtual void Update()
         {
             this.HandleKeyboardInputs();
-            this.tuioService.Update();
-            this.tracklinkService.Update();
+
+            if (this.tuioService != null)
+            {
+                this.tuioService.Update();
+            }
+
+            if (this.tracklinkService != null)
+            {
+                this.tracklinkService.Update();
+            }
         }
 
         /// <summary>
@@ -127,7 +135,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
                 yield return new WaitForSeconds(1f);
                 if (tracklinkService.IsActivelyReceiving && tuioService.IsActivelyReceiving)
                 {
-                    Debug.Log($"There's more than one tracking service active. Automatically defaulting to Tracklink, no TUIO data will be received.");
+                    Debug.LogWarning($"There's more than one tracking service active. Automatically defaulting to Tracklink, no TUIO data will be received! If you want to use a specific tracking service, set it in the trackingConfig.xml in the Streaming Assets.");
                     tuioService.Shutdown();
                 }
             }
@@ -153,7 +161,7 @@ namespace Assets.Pharus_Tracking_Framework.Managers
             }
             else
             {
-                Debug.Log($"No config file found at {aPathToConfigXML}. Using default settings: ");
+                Debug.LogWarning($"No config file found at {aPathToConfigXML}. Using default settings: ");
             }
         }
 
