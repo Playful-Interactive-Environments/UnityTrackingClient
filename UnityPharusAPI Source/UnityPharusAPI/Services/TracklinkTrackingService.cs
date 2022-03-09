@@ -15,7 +15,7 @@ namespace UnityPharusAPI.Services
         private TrackingSettings settings;
         private UnityPharusListener listener;
         private UnityPharusEventProcessor eventProcessor;
-        private bool isReceivingData;
+
         public UnityPharusEventProcessor EventProcessor
         {
             get { return eventProcessor; }
@@ -76,7 +76,7 @@ namespace UnityPharusAPI.Services
         /// <param name="settings">The settings xml file, which can be edited externally in the Streaming Assets.</param>
         public void Initialize(TrackingSettings settings)
         {
-            Console.WriteLine("Initialize Pharus");
+            Console.WriteLine("Initialize Tracklink");
             this.settings = settings;
 
             if (this.settings.CheckServerReconnectIntervall > 0)

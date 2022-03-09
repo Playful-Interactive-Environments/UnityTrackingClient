@@ -1,5 +1,5 @@
-﻿using Assets.Pharus_Tracking_Framework.Managers;
-using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tracklink;
+﻿using Assets.UnityPharusAPI.Managers;
+using UnityPharusAPI.TransmissionFrameworks.Tracklink;
 
 namespace Assets.Tracking_Example.Scripts
 {

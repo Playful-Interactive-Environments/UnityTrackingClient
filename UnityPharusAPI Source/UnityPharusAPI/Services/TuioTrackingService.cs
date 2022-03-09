@@ -73,6 +73,8 @@ namespace UnityPharusAPI.Services
         /// <param name="settings">The settings xml file, which can be edited externally in the Streaming Assets.</param>
         public void Initialize(TrackingSettings settings)
         {
+            Console.WriteLine("Initialize Tuio");
+
             this.settings = settings;
 
             listener = new UnityTuioListener(this.settings.TuioUdpPort);

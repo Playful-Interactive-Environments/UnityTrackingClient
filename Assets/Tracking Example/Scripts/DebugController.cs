@@ -1,8 +1,8 @@
-﻿using Assets.Pharus_Tracking_Framework;
-using Assets.Pharus_Tracking_Framework.Enums;
-using Assets.Pharus_Tracking_Framework.Managers;
+﻿using Assets.UnityPharusAPI.Managers;
 using TMPro;
 using UnityEngine;
+using UnityPharusAPI;
+using UnityPharusAPI.Enums;
 
 namespace Assets.Tracking_Example.Scripts
 {

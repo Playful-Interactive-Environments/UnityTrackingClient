@@ -1,5 +1,5 @@
-﻿using Assets.Pharus_Tracking_Framework.Managers;
-using Assets.Pharus_Tracking_Framework.TransmissionFrameworks.Tuio.TUIO;
+﻿using Assets.UnityPharusAPI.Managers;
+using UnityPharusAPI.TransmissionFrameworks.Tuio.TUIO;
 
 namespace Assets.Tracking_Example.Scripts
 {

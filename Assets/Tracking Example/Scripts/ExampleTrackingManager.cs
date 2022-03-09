@@ -1,4 +1,4 @@
-﻿using Assets.Pharus_Tracking_Framework.Managers;
+﻿using Assets.UnityPharusAPI.Managers;
 using System.Collections;
 
 namespace Assets.Tracking_Example.Scripts

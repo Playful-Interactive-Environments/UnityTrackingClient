@@ -1,4 +1,4 @@
-using Assets.Pharus_Tracking_Framework.Player;
+using Assets.UnityPharusAPI.Player;
 using UnityEngine;
 
 namespace Assets.Tracking_Example.Scripts
