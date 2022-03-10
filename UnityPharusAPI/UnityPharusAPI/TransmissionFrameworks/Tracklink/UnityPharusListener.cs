@@ -108,7 +108,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
         {
             while (m_client != null && m_client.Connected)
             {
-                Console.WriteLine("Client still connecting to port. Waiting...");
+                Console.Write("Client still connecting to port. Waiting...");
             }
 
             m_eventQueue = new Queue<PharusEvent>();
@@ -128,20 +128,20 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
             m_connecting = false;
             if (!m_client.Connected)
             {
-                Console.WriteLine(string.Format("Couldn't connect to port at {0}:{1} ({2})", m_ipAddress, m_port, m_useUDP ? "UDP" : "TCP"));
+                Console.Write(string.Format("Couldn't connect to port at {0}:{1} ({2})", m_ipAddress, m_port, m_useUDP ? "UDP" : "TCP"));
                 m_client.UnregisterTransmissionReceiver(this);
                 m_client.Disconnect();
                 m_client = null;
             }
             else
             {
-                Console.WriteLine(string.Format("--- Connected to port: {0}:{1} ({2}) | listening for pharus data...  ---", m_ipAddress, m_port, m_useUDP ? "UDP" : "TCP"));
+                Console.Write(string.Format("--- Connected to port: {0}:{1} ({2}) | listening for pharus data...  ---", m_ipAddress, m_port, m_useUDP ? "UDP" : "TCP"));
             }
         }
 
         private void OnAbruptDisconnect(string message)
         {
-            Console.WriteLine(string.Format("--- Abrupt disconnect: {0} ---", message));
+            Console.Write(string.Format("--- Abrupt disconnect: {0} ---", message));
         }
         #endregion
 
@@ -156,7 +156,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
             {
                 return m_client.Connected;
             }
-            Console.WriteLine("--- No TransmissionClient available ---");
+            Console.Write("--- No TransmissionClient available ---");
             return false;
         }
 
@@ -174,7 +174,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
                     ServiceShutdown?.Invoke(this, null);
                 }
                 m_client = null;
-                Console.WriteLine(string.Format("--- Disconnected from port: {0} ---", m_port));
+                Console.Write(string.Format("--- Disconnected from port: {0} ---", m_port));
             }
             else
             {
@@ -188,7 +188,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
         public void Reconnect()
         {
             Shutdown();
-            Console.WriteLine("--- Trying to reconnect tracking service... ---");
+            Console.Write("--- Trying to reconnect tracking service... ---");
             InitTracking();
         }
 

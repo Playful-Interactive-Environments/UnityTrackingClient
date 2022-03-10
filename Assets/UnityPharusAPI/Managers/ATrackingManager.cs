@@ -128,7 +128,6 @@ namespace Assets.UnityPharusAPI.Managers
 
             if (this.settings.TracklinkEnabled)
             {
-                Debug.Log("testestest");
                 tracklinkService.Initialize(this.settings);
             }
 

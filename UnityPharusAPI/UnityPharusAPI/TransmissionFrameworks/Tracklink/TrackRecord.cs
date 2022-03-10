@@ -41,7 +41,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
         public List<Vector2f> echoes;
     }
 
-    public class Vector2f
+    public struct Vector2f
     {
         public float x, y;
 
@@ -56,7 +56,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
             get
             {
                 return new Vector2f(0, 0);
-            } 
+            }
         }
     }
 }

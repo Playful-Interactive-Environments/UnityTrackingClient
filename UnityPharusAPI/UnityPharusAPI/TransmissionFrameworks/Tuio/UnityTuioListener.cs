@@ -99,7 +99,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tuio
         {
             while (m_client != null && m_client.isConnected())
             {
-                Console.WriteLine("Client still connecting. Waiting...");
+                Console.Write("Client still connecting. Waiting...");
             }
 
             m_eventQueue = new Queue<TuioEvent>();
@@ -109,13 +109,13 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tuio
             m_client.connect();
             if (!m_client.isConnected())
             {
-                Console.WriteLine("Couldn't listen at port " + m_udpPort + " for TUIO data. Check if port isn't already in use. (netstat -ano | find \"" + m_udpPort + "\")\n(also be sure to kill adb.exe if its still running)");
+                Console.Write("Couldn't listen at port " + m_udpPort + " for TUIO data. Check if port isn't already in use. (netstat -ano | find \"" + m_udpPort + "\")\n(also be sure to kill adb.exe if its still running)");
                 m_client.removeTuioListener(this);
                 m_client = null;
             }
             else
             {
-                Console.WriteLine("--- Connection establised: listening at port " + m_udpPort + " for TUIO data. ---");
+                Console.Write("--- Connection establised: listening at port " + m_udpPort + " for TUIO data. ---");
             }
         }
         #endregion
@@ -131,7 +131,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tuio
             {
                 return m_client.isConnected();
             }
-            Console.WriteLine("--- No TuioClient object available ---");
+            Console.Write("--- No TuioClient object available ---");
             return false;
         }
 
@@ -146,7 +146,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tuio
                 if (m_client.isConnected()) m_client.disconnect();
                 m_client = null;
                 ServiceShutdown?.Invoke(this, null);
-                Console.WriteLine("--- Disconnected TUIO client: port is now free ---");
+                Console.Write("--- Disconnected TUIO client: port is now free ---");
             }
             else
             {
@@ -160,7 +160,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tuio
         public void Reconnect()
         {
             Shutdown();
-            Console.WriteLine("--- Trying to reconnect tracking service... ---");
+            Console.Write("--- Trying to reconnect tracking service... ---");
             InitTracking();
         }
 

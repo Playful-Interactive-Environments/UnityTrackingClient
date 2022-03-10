@@ -228,7 +228,7 @@ namespace UnityPharusAPI.TransmissionFrameworks.Tracklink
                         while (Convert.ToChar(recvData[i]) == 'E') // peek if echo(es) available
                         {
                             ++i; // yep, then skip 'E'
-                            Vector2f echo = new Vector2f(0, 0);
+                            Vector2f echo;
                             echo.x = UnpackFloat(recvData, ref i);
                             echo.y = UnpackFloat(recvData, ref i);
                             track.echoes.Add(echo);

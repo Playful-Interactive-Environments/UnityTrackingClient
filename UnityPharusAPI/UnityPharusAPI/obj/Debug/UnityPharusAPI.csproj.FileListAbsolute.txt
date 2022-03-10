@@ -1,0 +1,6 @@
+C:\Users\p41461\Documents\UnityPharusAPI\UnityPharusAPI\UnityPharusAPI\bin\Debug\UnityPharusAPI.dll
+C:\Users\p41461\Documents\UnityPharusAPI\UnityPharusAPI\UnityPharusAPI\bin\Debug\UnityPharusAPI.pdb
+C:\Users\p41461\Documents\UnityPharusAPI\UnityPharusAPI\UnityPharusAPI\obj\Debug\UnityPharusAPI.csproj.AssemblyReference.cache
+C:\Users\p41461\Documents\UnityPharusAPI\UnityPharusAPI\UnityPharusAPI\obj\Debug\UnityPharusAPI.csproj.CoreCompileInputs.cache
+C:\Users\p41461\Documents\UnityPharusAPI\UnityPharusAPI\UnityPharusAPI\obj\Debug\UnityPharusAPI.dll
+C:\Users\p41461\Documents\UnityPharusAPI\UnityPharusAPI\UnityPharusAPI\obj\Debug\UnityPharusAPI.pdb
