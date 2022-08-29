@@ -1,4 +1,5 @@
 using Assets.UnityPharusAPI.Helper;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityPharusAPI;
@@ -16,7 +17,7 @@ namespace Assets.UnityPharusAPI.Player
         private Vector2 _relativePosition;
         private Vector2 _orientation;
         private float _speed;
-        private List<Vector2> _echoes = new List<Vector2>();
+        private ConcurrentDictionary<int,Vector2> _echoes = new ConcurrentDictionary<int, Vector2>();
 
         #region properties
         /// <summary>
@@ -76,7 +77,7 @@ namespace Assets.UnityPharusAPI.Player
         /// <summary>
         /// A list of the track's echoes (feet) as Vector2
         /// </summary>
-        public List<Vector2> Echoes
+        public ConcurrentDictionary<int,Vector2> Echoes
         {
             get { return _echoes; }
             set { _echoes = value; }
@@ -99,9 +100,9 @@ namespace Assets.UnityPharusAPI.Player
             Gizmos.color = Color.red;
 
             // DEBUG DRAW ECHOES
-            foreach (Vector2 echo in Echoes) 
+            foreach (KeyValuePair<int,Vector2> keyValuePair in Echoes.ToArray()) 
             {
-                Gizmos.DrawWireSphere (VectorAdapter.ToUnityVector2(TrackingAdapter.GetScreenPositionFromRelativePosition(echo.x, echo.y)), 12f);
+                Gizmos.DrawWireSphere (VectorAdapter.ToUnityVector2(TrackingAdapter.GetScreenPositionFromRelativePosition(keyValuePair.Value.x, keyValuePair.Value.y)), 12f);
             }
         }
     }
