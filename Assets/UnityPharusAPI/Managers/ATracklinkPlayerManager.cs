@@ -95,9 +95,9 @@ namespace Assets.UnityPharusAPI.Managers
             aPlayer.Speed = trackRecord.speed;
             aPlayer.Echoes.Clear();
             // trackRecord.echoes.AddToVector2List(VectorAdapter.ToPharusVector2List(aPlayer.Echoes));
-            foreach (KeyValuePair<int, Vector2> keyValuePair in aPlayer.Echoes)
+            for (int i = 0; i < trackRecord.echoes.Count; i++)
             {
-                trackRecord.echoes.Add(new Vector2f(keyValuePair.Value.x, keyValuePair.Value.y));
+                aPlayer.Echoes.TryAdd(i, new Vector2(trackRecord.echoes[i].x, trackRecord.echoes[i].y));
             }
             aPlayer.gameObject.name = string.Format("PharusPlayer_{0}", aPlayer.TrackID);
 
@@ -122,9 +122,9 @@ namespace Assets.UnityPharusAPI.Managers
                     // use AddToVector2List() instead of ToVector2List() as it is more performant
                     aPlayer.Echoes.Clear();
                     // trackRecord.echoes.AddToVector2List(VectorAdapter.ToPharusVector2List(aPlayer.Echoes));
-                    foreach (KeyValuePair<int, Vector2> keyValuePair in aPlayer.Echoes)
+                    for(int i = 0; i < trackRecord.echoes.Count; i++)
                     {
-                        trackRecord.echoes.Add(new Vector2f(keyValuePair.Value.x, keyValuePair.Value.y));
+                        aPlayer.Echoes.TryAdd(i, new Vector2(trackRecord.echoes[i].x, trackRecord.echoes[i].y));
                     }
                     //aPlayer.SetPosition(TracklinkTrackingService.GetScreenPositionFromRelativePosition(trackRecord.relPos));
                     aPlayer.SetPosition(VectorAdapter.ToUnityVector2(TrackingAdapter.GetScreenPositionFromRelativePosition(trackRecord.relPos.x, trackRecord.relPos.y)));

@@ -75,7 +75,7 @@ namespace Assets.UnityPharusAPI.Player
         }
 
         /// <summary>
-        /// A list of the track's echoes (feet) as Vector2
+        /// A Dictionary of the track's echoes (feet) as key,value(integer,Vector2) pair
         /// </summary>
         public ConcurrentDictionary<int,Vector2> Echoes
         {
