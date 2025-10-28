@@ -1,4 +1,5 @@
 ﻿using Assets.UnityPharusAPI.Helper;
+using Assets.UnityPharusAPI.Managers;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -21,6 +22,7 @@ namespace Assets.Tracking_Example.Scripts
 
         public void LoadScene(string level)
         {
+            ATrackingManager.Instance.ShutDown();
             this.previousLevel = this.currentLevel;
             this.currentLevel = level;
             StartCoroutine(this.LoadSceneAsync());
@@ -28,6 +30,7 @@ namespace Assets.Tracking_Example.Scripts
 
         public void ReloadCurrent()
         {
+            ATrackingManager.Instance.ShutDown();
             SceneManager.LoadScene(this.currentLevel);
         }
 
