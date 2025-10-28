@@ -6,9 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Tracking Example/Scenes/Tracking Test.unity
-    guid: 287e9bb4828a46d4cbaa58783df9775b
-  - enabled: 1
     path: Assets/Tracking Example/Scenes/Scene Load Test.unity
     guid: bbb97755a10fffd479059d10eb1420e8
+  - enabled: 1
+    path: Assets/Tracking Example/Scenes/Tracking Test 1.unity
+    guid: 287e9bb4828a46d4cbaa58783df9775b
+  - enabled: 1
+    path: Assets/Tracking Example/Scenes/Tracking Test 2.unity
+    guid: 303a31a61fb11134886e7faef457f1bb
+  - enabled: 1
+    path: Assets/Tracking Example/Scenes/Tracking Test 3.unity
+    guid: 89f1cc904fc680b4091334f4f188d012
   m_configObjects: {}

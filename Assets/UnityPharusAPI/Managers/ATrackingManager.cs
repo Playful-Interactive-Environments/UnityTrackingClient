@@ -103,7 +103,8 @@ namespace Assets.UnityPharusAPI.Managers
         protected virtual IEnumerator InitializeServices()
         {
             // Wait until config is loaded
-            yield return StartCoroutine(nameof(LoadConfig));
+            //yield return StartCoroutine(nameof(LoadConfig));
+            LoadConfigLocally();
 
             // Check service settings
             if (this.config != null)
@@ -135,11 +136,28 @@ namespace Assets.UnityPharusAPI.Managers
             while (this.settings.TracklinkEnabled && this.settings.TuioEnabled)
             {
                 yield return new WaitForSeconds(1f);
+
+                //Debug.Log(tuioService.IsActivelyReceiving);
+
                 if (tracklinkService.IsActivelyReceiving && tuioService.IsActivelyReceiving)
                 {
                     Debug.LogWarning($"There's more than one tracking service active. Automatically defaulting to Tracklink, no TUIO data will be received! If you want to use a specific tracking service, set it in the trackingConfig.xml in the Streaming Assets.");
                     tuioService.Shutdown();
                 }
+            }
+        }
+
+        protected void LoadConfigLocally()
+        {
+            string aPathToConfigXML = Path.Combine(Application.streamingAssetsPath, "trackingConfig.xml");
+            if (File.Exists(aPathToConfigXML))
+            {
+                Debug.Log("no errors occured during config file load");
+                config = TrackingXMLConfig.Load(aPathToConfigXML);
+            }
+            else
+            {
+                Debug.LogWarning($"No config file found at {aPathToConfigXML}. Using default settings: ");
             }
         }
 
@@ -169,9 +187,29 @@ namespace Assets.UnityPharusAPI.Managers
 
         protected virtual void HandleKeyboardInputs()
         {
+            //if(Input.GetKeyDown(KeyCode.C))
+            //    StartCoroutine(InitializeServices());
+
+            //if (Input.GetKeyUp(KeyCode.S))
+            //    ShutDown();
+
             if (Input.GetKeyDown(KeyCode.R))
             {
                 Reconnect();
+            }
+        }
+
+        public virtual void ShutDown()
+        {
+            // Initialize both services
+            if (this.settings.TuioEnabled && tuioService != null)
+            {
+                tuioService.Shutdown();
+            }
+
+            if (this.settings.TracklinkEnabled && tracklinkService != null)
+            {
+                tracklinkService.Shutdown();
             }
         }
     }

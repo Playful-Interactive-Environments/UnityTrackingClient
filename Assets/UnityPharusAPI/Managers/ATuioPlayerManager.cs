@@ -14,10 +14,10 @@ namespace Assets.UnityPharusAPI.Managers
     {
         protected List<ATrackingEntity> _playerList;
         [SerializeField] private GameObject _playerPrefab;
-        [SerializeField] private bool _addUnknownPlayerOnUpdate = true;
-        [SerializeField] private bool _subscribeTuioCursors = true;
-        [SerializeField] private bool _subscribeTuioObjects = false;
-        [SerializeField] private bool _subscribeTuioBlobs = false;
+        public bool _addUnknownPlayerOnUpdate = true;
+        public bool _subscribeTuioCursors = true;
+        public bool _subscribeTuioObjects = false;
+        public bool _subscribeTuioBlobs = false;
 
         /// <summary>
         /// A list of current active players
@@ -75,6 +75,7 @@ namespace Assets.UnityPharusAPI.Managers
         #region private methods
         protected virtual void SubscribeTrackingEvents(object theSender, System.EventArgs e)
         {
+
             if (_subscribeTuioCursors)
             {
                 TuioEventProcessor.CursorAdded += OnCursorAdded;
@@ -198,5 +199,6 @@ namespace Assets.UnityPharusAPI.Managers
             }
         }
         #endregion
+
     }
 }
